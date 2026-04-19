@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/mima1234/Desktop/app项目/**)",
+      "Read(//Users/mima1234/Desktop/**)",
+      "Read(//Users/mima1234/**)",
+      "Bash(gh auth *)",
+      "Bash(git config *)",
+      "Bash(git init *)",
+      "Bash(git remote *)",
+      "Bash(git fetch *)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git pull *)",
+      "Bash(curl -s --max-time 5 https://api.github.com)",
+      "Bash(GIT_SSL_NO_VERIFY=true git push -f origin main)",
+      "Bash(GIT_SSL_NO_VERIFY=true git push origin main)",
+      "Bash(grep -v \"^文章发布$\\\\|^课程$\\\\|\\\\.DS_Store\")",
+      "Bash(mkdir -p /tmp/article_imgs)",
+      "Bash(unzip -p \"如果AI能够完成所有操作，PM的价值到底在哪里？.docx\" word/media/image1.jpeg)",
+      "Bash(unzip -p \"315 之后的生存法则：PM 的底线在哪？.docx\" word/media/image1.jpeg)",
+      "Bash(unzip -p \"3月求职别犯贱：现在裸辞冲AI产品，就是给资本递刀子.docx\" word/media/image1.png)",
+      "Bash(unzip -p '\"养龙虾\"狂欢背后的血腥真相：AI革命？还是伪降本骗局？.docx' word/media/image1.jpeg)",
+      "Bash(cp /tmp/art4_tmp/word/media/image1.jpeg /tmp/article_imgs/art4.jpeg)",
+      "Bash(cp /tmp/article_imgs/art1.jpeg \"/Users/mima1234/Desktop/app项目/个人网站/imgs/art1.jpeg\")",
+      "Bash(cp /tmp/article_imgs/art2.jpeg \"/Users/mima1234/Desktop/app项目/个人网站/imgs/art2.jpeg\")",
+      "Bash(cp /tmp/article_imgs/art3.png  \"/Users/mima1234/Desktop/app项目/个人网站/imgs/art3.png\")",
+      "Bash(cp /tmp/article_imgs/art4.jpeg \"/Users/mima1234/Desktop/app项目/个人网站/imgs/art4.jpeg\")",
+      "Bash(cp \"/Users/mima1234/Desktop/app项目/月之案面/iOS端产品截图/IMG_0142.PNG\" \"/Users/mima1234/Desktop/app项目/个人网站/imgs/screens/yz-1.png\")",
+      "Bash(cp \"/Users/mima1234/Desktop/app项目/月之案面/iOS端产品截图/IMG_0143.PNG\" \"/Users/mima1234/Desktop/app项目/个人网站/imgs/screens/yz-2.png\")",
+      "Bash(cp \"/Users/mima1234/Desktop/app项目/月之案面/iOS端产品截图/IMG_0145.PNG\" \"/Users/mima1234/Desktop/app项目/个人网站/imgs/screens/yz-3.png\")",
+      "Bash(cp \"/Users/mima1234/Desktop/app项目/月之案面/iOS端产品截图/生成完成的分镜页面.jpg\" \"/Users/mima1234/Desktop/app项目/个人网站/imgs/screens/yz-4.jpg\")",
+      "Bash(cp \"/Users/mima1234/Desktop/app项目/iOS灵感瞬间/灵感瞬间图片展示/IMG_0134.PNG\" \"/Users/mima1234/Desktop/app项目/个人网站/imgs/screens/lg-1.png\")",
+      "Bash(grep -v node_modules echo \"---\" find \"/Users/mima1234/Desktop/app项目/猫咪伙伴iOS\" -name \"*.html\")",
+      "Bash(cp \"/Users/mima1234/Desktop/app项目/猫咪伙伴iOS/web/index.html\" \"/Users/mima1234/Desktop/app项目/个人网站/app-qydao.html\")",
+      "Bash(cp \"/Users/mima1234/Desktop/app项目/死得起/Vesper_MVP/index.html\" \"/Users/mima1234/Desktop/app项目/个人网站/app-vesper.html\")"
+    ]
+  }
+}

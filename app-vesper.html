@@ -1,212 +1,1495 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vesper | 死得起</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- 正体中文衬线字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
-        :root { --g: #D4AF37; --d: #000; --r: #ff0000; } 
-        body { background: var(--d); color: var(--g); font-family: 'Times New Roman', 'STHeiti', serif; margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
-        
-        .stage { display: none; width: 90%; max-width: 550px; animation: fadeIn 0.6s ease; }
-        .active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        /* ══ ROOT ══════════════════════════════════════════════════════════ */
+        :root {
+            --g:  #D4AF37;
+            --g2: rgba(212,175,55,0.18);
+            --g3: rgba(212,175,55,0.07);
+            --r:  #cc1a1a;
+            --paper: #0d0a05;
+            --font-cn: 'Noto Serif SC', 'STSong', 'FangSong', 'SimSun', serif;
+            --font-en: 'Times New Roman', 'Georgia', serif;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            width: 100%; height: 100%;
+            background: #000;
+            font-family: var(--font-cn);
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+        }
 
-        h1 { font-size: 2rem; letter-spacing: 8px; font-weight: 200; margin-bottom: 2rem; text-shadow: 0 0 10px rgba(212,175,55,0.3); }
-        .q { font-size: 1rem; color: #555; margin-bottom: 1.5rem; letter-spacing: 3px; text-transform: uppercase; }
-        
-        /* 标签云系统 */
-        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 15px; max-height: 180px; overflow-y: auto; padding: 10px; }
-        .tag { border: 1px solid #1a1a1a; padding: 6px 12px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; color: #444; }
-        .tag.selected { border-color: var(--g); color: var(--g); background: rgba(212,175,55,0.05); }
+        /* ══ 自定义滚动条 ══════════════════════════════════════════════════ */
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.18); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.35); }
 
-        .custom-area { margin-top: 20px; padding-top: 15px; border-top: 1px solid #111; }
-        #custom-val { border: none; border-bottom: 1px solid #222; width: 160px; font-size: 0.85rem; text-align: center; color: var(--g); outline: none; background: none; }
-        .add-trigger { font-size: 0.65rem; color: #444; cursor: pointer; margin-top: 8px; letter-spacing: 1px; }
+        /* ══ CURSOR SPOTLIGHT (桌面端鼠标光晕) ═══════════════════════════ */
+        #cursor-glow {
+            position: fixed;
+            width: 260px; height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(212,175,55,0.04) 0%, transparent 68%);
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            transition: left 0.07s linear, top 0.07s linear;
+        }
 
-        input, textarea, select { background: none; border: none; border-bottom: 1px solid #222; color: var(--g); font-size: 1.2rem; width: 100%; text-align: center; padding: 10px; outline: none; margin-top: 15px; }
-        select { cursor: pointer; }
-        
-        /* 最终结果排版 */
-        #t { font-size: 4.5rem; font-family: monospace; margin-bottom: 25px; transition: color 0.4s; letter-spacing: -3px; font-weight: bold; }
-        #res { line-height: 2.2; font-size: 1.2rem; color: #888; min-height: 200px; padding: 0 20px; transition: 0.3s; }
+        /* ══ VIDEO INTRO ══════════════════════════════════════════════════ */
+        #video-intro {
+            position: fixed; inset: 0; z-index: 100;
+            background: #000;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 1s ease;
+        }
+        #video-intro.fade-out { opacity: 0; pointer-events: none; }
+        #intro-video { width: 100%; height: 100%; object-fit: cover; }
+        #skip-btn {
+            position: absolute; bottom: 44px; right: 28px;
+            font-size: 0.65rem; color: rgba(212,175,55,0.3);
+            letter-spacing: 4px; cursor: pointer;
+            border: 1px solid rgba(212,175,55,0.1);
+            padding: 8px 18px; transition: 0.3s;
+        }
+        #skip-btn:hover { color: rgba(212,175,55,0.7); border-color: rgba(212,175,55,0.3); }
 
-        /* 🔴 核心高亮：加粗、血红、倾斜、震动 */
-        .highlight {
-            color: var(--r);
+        /* ══ BOOK STAGE ══════════════════════════════════════════════════ */
+        #book-stage {
+            position: fixed; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: #000;
+            opacity: 0; transition: opacity 1.2s ease 0.2s;
+            z-index: 10;
+        }
+        #book-stage.visible { opacity: 1; }
+
+        /* ══ PAGE BASE ═══════════════════════════════════════════════════ */
+        .page {
+            position: absolute; inset: 0;
+            display: none;
+            background: #000; color: var(--g);
+        }
+        .page.active { display: flex; }
+
+        /* ══ 烛光呼吸闪烁 ═══════════════════════════════════════════════ */
+        @keyframes candleFlicker {
+            0%   { opacity: 1; }
+            20%  { opacity: 0.97; }
+            35%  { opacity: 1; }
+            50%  { opacity: 0.95; }
+            65%  { opacity: 0.99; }
+            80%  { opacity: 0.96; }
+            100% { opacity: 1; }
+        }
+        @keyframes candleShift {
+            0%   { background-position: 0 0, 62% 46%, 0% 50%, 0% 0%, 100% 0%, 0% 100%, 100% 100%, 50% 0%, 50% 100%, 100% 50%, 28% 38%, 74% 64%, 14% 72%, 85% 25%, 56% 84%, 38% 14%, 72% 82%, 54% 46%, 0 0; }
+            33%  { background-position: 0 0, 60% 44%, 0% 50%, 0% 0%, 100% 0%, 0% 100%, 100% 100%, 50% 0%, 50% 100%, 100% 50%, 28% 38%, 74% 64%, 14% 72%, 85% 25%, 56% 84%, 38% 14%, 72% 82%, 54% 46%, 0 0; }
+            66%  { background-position: 0 0, 63% 48%, 0% 50%, 0% 0%, 100% 0%, 0% 100%, 100% 100%, 50% 0%, 50% 100%, 100% 50%, 28% 38%, 74% 64%, 14% 72%, 85% 25%, 56% 84%, 38% 14%, 72% 82%, 54% 46%, 0 0; }
+            100% { background-position: 0 0, 62% 46%, 0% 50%, 0% 0%, 100% 0%, 0% 100%, 100% 100%, 50% 0%, 50% 100%, 100% 50%, 28% 38%, 74% 64%, 14% 72%, 85% 25%, 56% 84%, 38% 14%, 72% 82%, 54% 46%, 0 0; }
+        }
+        @keyframes candleGlow {
+            0%,100% { box-shadow: inset 0 0 90px rgba(0,0,0,0.62), inset 0 0 30px rgba(0,0,0,0.48), inset 0 0 60px rgba(212,175,55,0.04); }
+            40%     { box-shadow: inset 0 0 80px rgba(0,0,0,0.55), inset 0 0 24px rgba(0,0,0,0.38), inset 0 0 80px rgba(212,175,55,0.07); }
+        }
+
+        /* 卷轴顶部卷曲阴影 */
+        .page::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 1%; right: 1%; height: 40px;
+            background: linear-gradient(to bottom,
+                rgba(0,0,0,0.98)  0%,
+                rgba(0,0,0,0.88) 18%,
+                rgba(0,0,0,0.65) 42%,
+                rgba(0,0,0,0.28) 68%,
+                transparent 100%);
+            border-radius: 52% 52% 0 0 / 160% 160% 0 0;
+            z-index: 8; pointer-events: none;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.55);
+        }
+        /* 卷轴底部卷曲阴影 */
+        .page::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 4%; right: 4%; height: 30px;
+            background: linear-gradient(to top,
+                rgba(0,0,0,0.96)  0%,
+                rgba(0,0,0,0.82) 22%,
+                rgba(0,0,0,0.55) 50%,
+                rgba(0,0,0,0.20) 75%,
+                transparent 100%);
+            border-radius: 0 0 52% 52% / 0 0 160% 160%;
+            z-index: 8; pointer-events: none;
+        }
+
+        /* 翻页动画 */
+        .page.flip-in {
+            display: flex;
+            animation: pageFlipIn 0.48s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        .page.flip-out {
+            display: flex;
+            animation: pageFlipOut 0.38s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+        }
+        @keyframes pageFlipIn {
+            from { transform: perspective(900px) rotateY(-22deg) translateX(48px); opacity: 0; }
+            to   { transform: perspective(900px) rotateY(0)      translateX(0);    opacity: 1; }
+        }
+        @keyframes pageFlipOut {
+            from { transform: perspective(900px) rotateY(0)     translateX(0);     opacity: 1; }
+            to   { transform: perspective(900px) rotateY(22deg) translateX(-48px); opacity: 0; }
+        }
+
+        /* ══ 黑金页面底纸 ══════════════════════════════════════════════ */
+        .pi {
+            width: 100%; height: 100%;
+            background:
+                /* 细横纹：极淡金线 */
+                repeating-linear-gradient(
+                    to bottom,
+                    transparent 0px, transparent 27px,
+                    rgba(212,175,55,0.035) 27px, rgba(212,175,55,0.035) 28px
+                ),
+                /* 中心金光晕：模拟烛光打在黑纸上 */
+                radial-gradient(ellipse at 52% 48%, rgba(212,175,55,0.11) 0%, rgba(180,145,40,0.06) 28%, transparent 58%),
+                /* 左侧暗面 */
+                radial-gradient(ellipse at 0% 50%,  rgba(0,0,0,0.80) 0%, transparent 38%),
+                /* 四角深黑 */
+                radial-gradient(ellipse at 0%   0%,   rgba(0,0,0,0.96) 0%, transparent 42%),
+                radial-gradient(ellipse at 100% 0%,   rgba(0,0,0,0.92) 0%, transparent 40%),
+                radial-gradient(ellipse at 0%   100%, rgba(0,0,0,0.92) 0%, transparent 40%),
+                radial-gradient(ellipse at 100% 100%, rgba(0,0,0,0.90) 0%, transparent 38%),
+                /* 上下边缘深压 */
+                radial-gradient(ellipse at 50% 0%,    rgba(0,0,0,0.82) 0%, transparent 46%),
+                radial-gradient(ellipse at 50% 100%,  rgba(0,0,0,0.82) 0%, transparent 46%),
+                radial-gradient(ellipse at 100% 50%,  rgba(0,0,0,0.68) 0%, transparent 34%),
+                /* 极淡金色微斑：代替脏棕污渍 */
+                radial-gradient(ellipse at 28% 38%,  rgba(212,175,55,0.05) 0%, transparent 28%),
+                radial-gradient(ellipse at 74% 64%,  rgba(212,175,55,0.04) 0%, transparent 24%),
+                radial-gradient(ellipse at 14% 72%,  rgba(212,175,55,0.04) 0%, transparent 20%),
+                radial-gradient(ellipse at 85% 25%,  rgba(212,175,55,0.04) 0%, transparent 22%),
+                radial-gradient(ellipse at 56% 84%,  rgba(212,175,55,0.03) 0%, transparent 18%),
+                radial-gradient(ellipse at 38% 14%,  rgba(212,175,55,0.03) 0%, transparent 16%),
+                radial-gradient(ellipse at 72% 82%,  rgba(212,175,55,0.03) 0%, transparent 15%),
+                /* 底色：纯黑 */
+                linear-gradient(172deg,
+                    #050505 0%,
+                    #080808 20%,
+                    #0d0d0d 45%,
+                    #080808 72%,
+                    #040404 100%);
+
+            position: relative;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 52px 28px 36px;
+            overflow: hidden;
+            box-shadow:
+                inset 0 0 90px rgba(0,0,0,0.62),
+                inset 0 0 30px rgba(0,0,0,0.48);
+            animation: candleFlicker 4.5s ease-in-out infinite,
+                       candleGlow    6s ease-in-out infinite;
+        }
+        /* 内框：压印感边框 */
+        .pi::before {
+            content: '';
+            position: absolute; inset: 14px;
+            border: 1px solid rgba(212,175,55,0.18);
+            pointer-events: none;
+            box-shadow:
+                inset 0 0 28px rgba(0,0,0,0.32),
+                inset 0 0 8px  rgba(212,175,55,0.04);
+        }
+        /* 顶部印章装饰 */
+        .pi::after {
+            content: '✦  ·  ·  ·  ✦';
+            position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+            font-size: 0.48rem; color: rgba(212,175,55,0.22); letter-spacing: 5px;
+            white-space: nowrap;
+        }
+
+        /* ══ 幽灵墨迹文字层（古籍/线装书纹路）══════════════════════════ */
+        .ghost-chars {
+            position: absolute; inset: 0;
+            z-index: 0; pointer-events: none; user-select: none;
+            overflow: hidden;
+        }
+        .ghost-char {
+            position: absolute;
+            font-family: 'STSong', 'FangSong', 'SimSun', 'STHeiti', serif;
+            color: rgba(212,175,55,0.55);
+            pointer-events: none; user-select: none;
+            line-height: 1;
+        }
+        /* 页面所有直接子元素层叠在纹理层之上 */
+        .pi > *:not(.ghost-chars) { position: relative; z-index: 1; }
+        /* 页码 */
+        .pnum {
+            position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+            font-size: 0.6rem; color: rgba(212,175,55,0.28); letter-spacing: 4px;
+        }
+
+        /* ══ 步骤进度条 ═══════════════════════════════════════════════════ */
+        .step-dots {
+            position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; align-items: center; gap: 10px; z-index: 2;
+        }
+        .sdot {
+            width: 5px; height: 5px; border-radius: 50%;
+            background: rgba(175,115,35,0.35);
+            transition: background 0.4s, transform 0.3s, width 0.3s;
+        }
+        .sdot.done   { background: rgba(205,155,55,0.60); }
+        .sdot.active { background: var(--g); transform: scale(1.25); width: 14px; border-radius: 3px; }
+
+        /* ══ COVER ═══════════════════════════════════════════════════════ */
+        .cover-title {
+            font-size: clamp(2rem, 6vw, 2.8rem);
+            letter-spacing: 16px; font-weight: 300;
+            color: var(--g);
+            font-family: var(--font-en);
+            text-shadow: 0 0 32px rgba(212,175,55,0.32), 0 0 70px rgba(140,80,10,0.18);
+            margin-bottom: 8px;
+        }
+        .cover-cn {
+            font-size: clamp(0.72rem, 2vw, 0.88rem);
+            color: rgba(212,175,55,0.52);
+            letter-spacing: 14px; margin-bottom: 14px;
+            font-weight: 300;
+        }
+        /* 朱砂印章 */
+        .cover-stamp {
+            font-size: clamp(2.8rem, 8vw, 3.6rem);
+            color: rgba(160,20,20,0.75);
+            font-family: var(--font-cn);
             font-weight: 900;
-            font-size: 1.5rem;
-            text-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
-            display: inline-block;
-            transform: skewX(-10deg); 
-            margin: 0 4px;
+            letter-spacing: 0;
+            margin-bottom: 24px;
+            text-shadow: 0 0 20px rgba(160,20,20,0.35), 2px 2px 4px rgba(0,0,0,0.6);
+            border: 2px solid rgba(160,20,20,0.28);
+            padding: 4px 14px 2px;
+            line-height: 1.1;
+            position: relative;
+        }
+        .cover-stamp::before {
+            content: '';
+            position: absolute; inset: 2px;
+            border: 1px solid rgba(160,20,20,0.15);
+            pointer-events: none;
+        }
+        .cover-seal {
+            font-size: clamp(0.6rem, 1.5vw, 0.68rem);
+            color: rgba(212,175,55,0.52); letter-spacing: 5px;
+            border-top: 1px solid rgba(160,100,28,0.22);
+            border-bottom: 1px solid rgba(160,100,28,0.22);
+            padding: 12px 24px; margin-bottom: 44px;
+            font-weight: 300;
         }
 
-        /* 震颤效果 */
-        .shock { animation: shake 0.1s linear infinite; color: #eee !important; }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px); }
-            25% { transform: translate(-1px, -1px); }
-            50% { transform: translate(1px, -1px); }
-            75% { transform: translate(-1px, 1px); }
-            100% { transform: translate(0, 0); }
+        /* ══ QUESTION LABEL ══════════════════════════════════════════════ */
+        .pq {
+            font-size: clamp(1rem, 3vw, 1.15rem);
+            color: rgba(232,195,95,0.96);
+            letter-spacing: 4px;
+            margin-bottom: 28px; text-align: center;
+            text-shadow: 0 1px 8px rgba(0,0,0,0.7), 0 0 28px rgba(200,140,30,0.22);
+            font-weight: 400;
+            line-height: 1.7;
         }
 
-        .epitaph { margin-top: 45px; color: #444; font-size: 0.85rem; letter-spacing: 2px; border-top: 1px solid #111; padding-top: 25px; }
+        /* ══ AGE INPUT ═══════════════════════════════════════════════════ */
+        .age-wrap { text-align: center; margin-bottom: 6px; }
+        .age-num {
+            background: none; border: none;
+            border-bottom: 1px solid rgba(160,100,28,0.32);
+            color: var(--g); font-size: clamp(3rem, 10vw, 4.2rem); width: 160px;
+            text-align: center; padding: 6px 0; outline: none;
+            font-family: var(--font-en);
+            font-weight: 300;
+            transition: border-color 0.35s, filter 0.35s, text-shadow 0.35s;
+            display: block; margin: 0 auto;
+            caret-color: var(--g);
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        .age-num::-webkit-inner-spin-button,
+        .age-num::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .age-num:focus {
+            border-bottom-color: rgba(212,175,55,0.60);
+            filter: drop-shadow(0 4px 10px rgba(212,175,55,0.18));
+            text-shadow: 0 0 20px rgba(212,175,55,0.22);
+        }
+        .age-unit {
+            font-size: 0.62rem; color: rgba(212,175,55,0.45);
+            letter-spacing: 6px; text-align: center;
+            margin-top: 8px; margin-bottom: 28px;
+            font-weight: 300;
+        }
 
-        button { background: none; border: 1px solid var(--g); color: var(--g); padding: 12px 60px; margin-top: 40px; cursor: pointer; letter-spacing: 5px; font-size: 0.75rem; transition: 0.4s; }
-        button:hover { background: var(--g); color: #000; box-shadow: 0 0 20px rgba(212,175,55,0.3); }
+        /* ══ TAGS ════════════════════════════════════════════════════════ */
+        .tag-box {
+            display: flex; flex-wrap: wrap;
+            justify-content: center; gap: 10px;
+            width: 100%; max-height: 160px;
+            overflow-y: auto; margin-bottom: 14px;
+            padding: 4px 2px;
+        }
+        .tag {
+            border: 1px solid rgba(180,120,40,0.40);
+            padding: 8px 16px; font-size: clamp(0.76rem, 2.2vw, 0.86rem);
+            cursor: pointer;
+            color: rgba(225,182,78,0.82);
+            position: relative; overflow: hidden;
+            user-select: none;
+            letter-spacing: 1px;
+            transition: border-color 0.22s, color 0.22s, transform 0.18s, box-shadow 0.22s, background 0.22s;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.55);
+            font-weight: 300;
+        }
+        .tag:hover {
+            border-color: rgba(212,168,60,0.72);
+            color: rgba(240,200,90,0.98);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(100,55,5,0.18);
+        }
+        /* 选中状态：明亮金色，高对比度，一眼看出来 */
+        .tag.selected {
+            border-color: var(--g);
+            color: #000;
+            background: var(--g);
+            box-shadow: 0 0 16px rgba(212,175,55,0.35);
+            font-weight: 600;
+        }
+        .tag.selected:hover {
+            transform: translateY(-2px);
+            background: #e8c444;
+            border-color: #e8c444;
+        }
+        /* 点击波纹 */
+        .tag .ripple {
+            position: absolute; border-radius: 50%;
+            background: rgba(212,175,55,0.2);
+            transform: scale(0);
+            animation: rippleAnim 0.42s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes rippleAnim {
+            to { transform: scale(5); opacity: 0; }
+        }
+        /* 选中时高亮闪光 */
+        @keyframes tagFlash {
+            0%   { box-shadow: 0 0 0px rgba(212,175,55,0); }
+            40%  { box-shadow: 0 0 20px rgba(212,175,55,0.6); }
+            100% { box-shadow: 0 0 16px rgba(212,175,55,0.35); }
+        }
+        .tag.flash { animation: tagFlash 0.3s ease; }
 
-        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 100; align-items: center; justify-content: center; }
-        .m-box { border: 1px solid var(--g); padding: 40px; background: #050505; max-width: 320px; }
-        .m-text { font-size: 1.1rem; line-height: 1.6; }
-        .m-close { font-size: 0.7rem; border: 1px solid var(--g); padding: 8px 20px; cursor: pointer; display: inline-block; margin-top: 30px; letter-spacing: 2px; }
+        .custom-row {
+            display: flex; align-items: center;
+            gap: 8px; width: 100%; margin-bottom: 22px;
+        }
+        .custom-row input {
+            background: none; border: none;
+            border-bottom: 1px solid rgba(175,115,35,0.35);
+            color: rgba(232,192,88,0.92); font-size: clamp(0.76rem, 2.2vw, 0.84rem); flex: 1;
+            padding: 6px 4px; outline: none;
+            font-family: var(--font-cn); font-weight: 300;
+            transition: border-color 0.3s;
+            caret-color: var(--g);
+        }
+        .custom-row input::placeholder { color: rgba(195,148,55,0.40); }
+        .custom-row input:focus { border-bottom-color: rgba(212,168,55,0.60); }
+        .custom-row span {
+            font-size: clamp(0.6rem, 1.8vw, 0.66rem);
+            color: rgba(200,150,55,0.62);
+            cursor: pointer; white-space: nowrap; letter-spacing: 1px;
+            transition: color 0.2s; font-weight: 300;
+        }
+        .custom-row span:hover { color: rgba(225,178,70,0.90); }
+
+        /* ══ TEXTAREA ════════════════════════════════════════════════════ */
+        .ptextarea {
+            background: none; border: none;
+            border-bottom: 1px solid rgba(180,120,35,0.38);
+            color: rgba(232,192,88,0.94); font-size: clamp(0.88rem, 2.5vw, 0.98rem);
+            width: 100%; padding: 8px 2px;
+            outline: none; resize: none; margin-bottom: 10px;
+            font-family: var(--font-cn);
+            line-height: 2.1; font-weight: 300;
+            transition: border-color 0.3s, filter 0.3s;
+            caret-color: var(--g);
+            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        .ptextarea:focus {
+            border-bottom-color: rgba(200,148,44,0.55);
+            filter: drop-shadow(0 3px 6px rgba(120,70,5,0.15));
+        }
+
+        /* ══ WILL 选项卡片 ════════════════════════════════════════════════ */
+        .will-cards {
+            width: 100%; display: flex; flex-direction: column;
+            gap: 10px; margin-bottom: 22px;
+        }
+        .will-card {
+            border: 1px solid rgba(175,115,35,0.38);
+            padding: 14px 18px;
+            font-size: clamp(0.8rem, 2.2vw, 0.9rem);
+            color: rgba(228,185,82,0.88);
+            cursor: pointer; letter-spacing: 1px;
+            position: relative; overflow: hidden;
+            transition: border-color 0.22s, color 0.22s, transform 0.2s, background 0.22s;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.55);
+            font-weight: 300;
+            line-height: 1.6;
+            text-align: center;
+        }
+        /* 左侧指示点 */
+        .will-card::before {
+            content: '';
+            position: absolute; left: 12px; top: 50%;
+            transform: translateY(-50%);
+            width: 4px; height: 4px; border-radius: 50%;
+            background: rgba(160,100,28,0.28);
+            transition: background 0.22s, transform 0.22s;
+        }
+        /* hover 扫光 */
+        .will-card::after {
+            content: '';
+            position: absolute; top: 0; left: -80%;
+            width: 55%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212,168,55,0.08), transparent);
+            transition: left 0.4s ease;
+        }
+        .will-card:hover {
+            border-color: rgba(200,145,45,0.45);
+            color: rgba(220,175,68,0.88);
+            background: rgba(120,70,5,0.08);
+            transform: translateX(4px);
+        }
+        .will-card:hover::before { background: rgba(212,168,55,0.65); transform: translateY(-50%) scale(1.4); }
+        .will-card:hover::after  { left: 160%; }
+        .will-card.selected {
+            border-color: var(--g);
+            color: var(--g);
+            background: rgba(120,72,5,0.15);
+            transform: translateX(4px);
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.2);
+        }
+        .will-card.selected::before { background: var(--g); }
+
+        /* ══ HINT ════════════════════════════════════════════════════════ */
+        .hint { font-size: clamp(0.68rem, 1.8vw, 0.74rem); color: rgba(212,175,55,0.58); letter-spacing: 2px; margin-bottom: 24px; text-align: center; font-weight: 300; }
+
+        /* ══ FLIP BUTTON ═════════════════════════════════════════════════ */
+        .fbtn {
+            background: none;
+            border: 1px solid var(--g);
+            color: var(--g);
+            padding: 14px 60px;
+            font-size: 0.72rem; letter-spacing: 6px; cursor: pointer;
+            font-family: 'Times New Roman', serif;
+            position: relative; overflow: hidden;
+            transition: background 0.35s, color 0.35s, box-shadow 0.35s, transform 0.12s;
+            width: 100%; max-width: 320px;
+        }
+        /* 扫光效果 */
+        .fbtn::after {
+            content: '';
+            position: absolute; top: 0; left: -80%; width: 55%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.42s ease;
+        }
+        .fbtn:hover {
+            background: var(--g);
+            color: #000;
+            box-shadow: 0 0 24px rgba(212,175,55,0.35);
+        }
+        .fbtn:hover::after { left: 160%; }
+        /* 点击：缩放 + 填充闪光 */
+        .fbtn:active { transform: scale(0.97); filter: brightness(1.15); }
+        /* 按钮点击后波纹 */
+        .fbtn .btn-ripple {
+            position: absolute; border-radius: 50%;
+            background: rgba(212,175,55,0.25);
+            transform: scale(0);
+            animation: btnRipple 0.55s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes btnRipple {
+            to { transform: scale(6); opacity: 0; }
+        }
+
+        /* ══ RESULT PAGE ═════════════════════════════════════════════════ */
+        .rpi {
+            justify-content: flex-start;
+            overflow-y: auto; padding-top: 44px;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+        #timer {
+            font-family: var(--font-en), monospace;
+            font-size: clamp(2.2rem, 7vw, 3rem);
+            font-weight: 300; letter-spacing: -1px;
+            color: var(--g); transition: color 0.6s;
+            margin-bottom: 2px;
+        }
+        .tlabel {
+            font-size: 0.58rem; color: rgba(212,175,55,0.28);
+            letter-spacing: 6px; margin-bottom: 22px;
+            font-weight: 300;
+        }
+        .loading-msg {
+            font-size: clamp(0.6rem, 2vw, 0.7rem);
+            color: rgba(200,150,50,0.50);
+            letter-spacing: 4px; text-align: center; min-height: 22px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+            font-weight: 300;
+        }
+        /* 加载点动画 */
+        .loading-msg::after {
+            content: '·';
+            animation: loadDots 1.2s steps(3, end) infinite;
+        }
+        @keyframes loadDots {
+            0%   { content: '·'; }
+            33%  { content: '··'; }
+            66%  { content: '···'; }
+            100% { content: '·'; }
+        }
+        #res { width: 100%; text-align: center; }
+        .j-line {
+            font-size: clamp(0.8rem, 2.4vw, 0.9rem);
+            color: rgba(228,188,78,0.88);
+            line-height: 2.1; margin: 6px 0;
+            opacity: 0; animation: lineIn 0.5s ease forwards;
+            font-weight: 300;
+            text-align: center;
+        }
+        .j-verdict {
+            margin: 20px 0 14px; padding: 12px 0;
+            border-top: 1px solid rgba(212,175,55,0.12);
+            border-bottom: 1px solid rgba(212,175,55,0.12);
+            color: var(--g); font-size: clamp(0.75rem, 2.2vw, 0.85rem);
+            letter-spacing: 2px;
+            opacity: 0; animation: lineIn 0.5s ease forwards;
+            font-weight: 400;
+            text-align: center;
+        }
+        .j-redemption {
+            margin-top: 14px; color: rgba(212,175,55,0.32);
+            font-size: clamp(0.68rem, 2vw, 0.76rem); line-height: 2;
+            opacity: 0; animation: lineIn 0.5s ease forwards;
+            text-align: center;
+        }
+        .highlight {
+            color: var(--r); font-weight: 600;
+            text-shadow: 0 0 10px rgba(180,20,20,0.50), 0 0 20px rgba(180,20,20,0.20);
+            display: inline-block; transform: skewX(-6deg); margin: 0 2px;
+        }
+        .epitaph-block {
+            margin-top: 24px; padding-top: 18px;
+            border-top: 1px solid rgba(212,175,55,0.08); text-align: center;
+        }
+        .epitaph-label {
+            font-size: 0.58rem; color: rgba(212,175,55,0.28);
+            letter-spacing: 6px; margin-bottom: 10px;
+            font-weight: 300;
+        }
+        .epitaph-text {
+            color: rgba(212,175,55,0.88);
+            font-size: clamp(0.78rem, 2.2vw, 0.88rem);
+            letter-spacing: 3px; line-height: 2;
+            font-weight: 300;
+            text-shadow: 0 0 14px rgba(180,130,30,0.18);
+        }
+        .rbtn-row { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+        .rbtn {
+            background: none; border: 1px solid rgba(212,175,55,0.18);
+            color: rgba(212,175,55,0.40); padding: 8px 18px;
+            font-size: 0.64rem; letter-spacing: 3px; cursor: pointer;
+            font-family: var(--font-cn); transition: 0.3s;
+            font-weight: 300;
+        }
+        .rbtn:hover {
+            border-color: rgba(212,175,55,0.40);
+            color: rgba(212,175,55,0.72);
+            background: rgba(212,175,55,0.03);
+        }
+
+        /* ══ DAILY ════════════════════════════════════════════════════════ */
+        #daily-section { width: 100%; margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(212,175,55,0.08); }
+        .daily-label { font-size: 0.62rem; color: rgba(212,175,55,0.22); letter-spacing: 5px; text-align: center; margin-bottom: 14px; }
+        .action-row { display: flex; gap: 10px; justify-content: center; }
+        .btn-indulge, .btn-redeem {
+            flex: 1; max-width: 115px; border: 1px solid;
+            padding: 11px 0; font-size: 0.62rem; letter-spacing: 4px;
+            cursor: pointer; background: none; transition: 0.3s;
+            font-family: 'Times New Roman', serif;
+        }
+        .btn-indulge { border-color: rgba(255,0,0,0.12); color: rgba(255,0,0,0.22); }
+        .btn-indulge:hover { border-color: rgba(255,0,0,0.48); color: rgba(255,0,0,0.72); background: rgba(255,0,0,0.02); }
+        .btn-redeem { border-color: rgba(212,175,55,0.08); color: rgba(212,175,55,0.2); }
+        .btn-redeem:hover { border-color: rgba(212,175,55,0.42); color: rgba(212,175,55,0.62); background: rgba(212,175,55,0.02); }
+        #quick-comment { margin-top: 12px; font-size: 0.7rem; color: rgba(212,175,55,0.3); line-height: 1.9; min-height: 28px; opacity: 0; transition: opacity 0.5s; text-align: center; }
+        #quick-comment.show { opacity: 1; }
+        #action-log { margin-top: 14px; width: 100%; }
+        .log-entry { font-size: 0.66rem; padding: 6px 2px; border-bottom: 1px solid rgba(212,175,55,0.06); opacity: 0; animation: lineIn 0.4s ease forwards; display: flex; justify-content: space-between; }
+        .log-entry.indulge .log-action, .log-entry.indulge .log-delta { color: rgba(200,0,0,0.3); }
+        .log-entry.redeem  .log-action, .log-entry.redeem  .log-delta { color: rgba(212,175,55,0.3); }
+        .log-time { color: rgba(212,175,55,0.1); }
+
+        @keyframes lineIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ══ 响应式：小屏手机（≤390px）════════════════════════════════════ */
+        @media (max-width: 390px) {
+            .pi { padding: 44px 20px 30px; }
+            .tag-box { max-height: 130px; gap: 8px; }
+            .will-cards { gap: 8px; }
+            .fbtn { padding: 12px 40px; }
+        }
+        /* 横屏禁用提示 */
+        @media (orientation: landscape) and (max-height: 500px) {
+            #book-stage::after {
+                content: '请竖屏体验';
+                position: fixed; inset: 0; z-index: 999;
+                background: #000; color: rgba(212,175,55,0.4);
+                display: flex; align-items: center; justify-content: center;
+                font-size: 0.9rem; letter-spacing: 6px;
+            }
+        }
+
+        /* ══ 尘埃粒子 ════════════════════════════════════════════════════ */
+        #dust-canvas {
+            position: fixed; inset: 0;
+            pointer-events: none; z-index: 2;
+            opacity: 0.55;
+        }
+
+        /* ══ MARGIN NOTE (判官批注 — 居中浮现) ══════════════════════════ */
+        #margin-note {
+            position: fixed;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -48%) scale(0.92);
+            width: min(88vw, 320px);
+            z-index: 200;
+            /* 深琥珀半透明，不用纯黑 */
+            background: rgba(30, 14, 3, 0.88);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(212,175,55,0.38);
+            border-top: 2px solid rgba(212,175,55,0.55);
+            padding: 28px 26px 22px;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.32s ease, transform 0.32s cubic-bezier(0.25,0.8,0.25,1);
+            text-align: center;
+        }
+        /* 顶部小标签 */
+        #margin-note::before {
+            content: '⚖  判官批注';
+            display: block;
+            font-size: 0.42rem;
+            color: rgba(212,175,55,0.35);
+            letter-spacing: 5px;
+            margin-bottom: 14px;
+        }
+        #margin-note.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        #margin-note-text {
+            font-size: clamp(0.82rem, 2.4vw, 0.92rem);
+            color: rgba(235,198,95,0.96);
+            line-height: 1.85;
+            font-weight: 300;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+        }
+        .note-verdict {
+            font-size: 0.6rem;
+            color: rgba(212,175,55,0.48);
+            letter-spacing: 4px;
+            margin-top: 14px;
+            display: block;
+            text-align: center;
+        }
+
+        /* 判官批注遮罩 */
+        #margin-overlay {
+            position: fixed; inset: 0; z-index: 199;
+            background: rgba(0,0,0,0.52);
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.32s ease;
+        }
+        #margin-overlay.show { opacity: 1; pointer-events: auto; }
+
+        /* ══ BOTTOM SHEET ════════════════════════════════════════════════ */
+        #sheet-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.72); z-index: 149; }
+        #action-sheet {
+            position: fixed; bottom: -100%; left: 0; right: 0;
+            background: #040404; border-top: 1px solid rgba(212,175,55,0.08);
+            padding: 28px 24px 44px; z-index: 150;
+            transition: bottom 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        #action-sheet.open { bottom: 0; }
+        .sheet-title { font-size: 0.68rem; color: rgba(212,175,55,0.28); letter-spacing: 4px; margin-bottom: 18px; text-align: center; }
+        .sheet-tags { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .sheet-tag {
+            border: 1px solid rgba(212,175,55,0.1); padding: 10px 16px;
+            font-size: 0.75rem; cursor: pointer;
+            color: rgba(212,175,55,0.25); transition: 0.22s;
+            font-family: 'Times New Roman', serif;
+        }
+        .sheet-tag:hover { border-color: rgba(212,175,55,0.38); color: rgba(212,175,55,0.62); background: rgba(212,175,55,0.02); }
+        .sheet-cancel { margin-top: 24px; font-size: 0.64rem; color: rgba(212,175,55,0.20); letter-spacing: 3px; cursor: pointer; text-align: center; }
+
+        /* ══ POSTER MODAL ════════════════════════════════════════════════ */
+        #poster-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.97); z-index: 200; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; padding: 40px 0; }
+        #poster-modal.open { display: flex; }
+        #poster { width: 300px; background: #000; border: 1px solid rgba(212,175,55,0.1); padding: 44px 32px 40px; font-family: 'Times New Roman', 'STHeiti', serif; }
+        #poster .p-brand { font-size: 0.5rem; letter-spacing: 12px; color: rgba(212,175,55,0.1); margin-bottom: 32px; text-align: center; }
+        #poster .p-loss-label { font-size: 0.5rem; color: rgba(212,175,55,0.1); letter-spacing: 5px; margin-bottom: 10px; text-align: center; }
+        #poster .p-loss { font-size: 3rem; font-family: monospace; font-weight: bold; letter-spacing: -2px; color: var(--r); line-height: 1; text-align: center; }
+        #poster .p-loss-unit { font-size: 0.52rem; color: rgba(212,175,55,0.1); letter-spacing: 5px; margin-top: 6px; margin-bottom: 28px; text-align: center; }
+        #poster .p-divider { width: 28px; height: 1px; background: rgba(212,175,55,0.08); margin: 0 auto 22px; }
+        #poster .p-lines { font-size: 0.75rem; color: rgba(212,175,55,0.3); line-height: 2.1; }
+        #poster .p-lines .highlight { color: var(--r); font-weight: 900; }
+        #poster .p-epitaph { margin-top: 26px; padding-top: 18px; border-top: 1px solid rgba(212,175,55,0.06); }
+        #poster .p-epitaph-label { font-size: 0.48rem; color: rgba(212,175,55,0.1); letter-spacing: 5px; margin-bottom: 10px; text-align: center; }
+        #poster .p-epitaph-val { color: var(--g); font-size: 0.88rem; letter-spacing: 2px; text-align: center; }
+        #poster .p-slogan { margin-top: 30px; font-size: 0.45rem; color: rgba(212,175,55,0.07); letter-spacing: 5px; text-align: center; }
+        .poster-hint { font-size: 0.64rem; color: rgba(212,175,55,0.22); letter-spacing: 3px; margin-top: 20px; }
+        .poster-dl, .poster-close { font-size: 0.64rem; letter-spacing: 3px; cursor: pointer; padding: 7px 22px; margin-top: 10px; }
+        .poster-dl { color: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.08); }
+        .poster-dl:hover { color: var(--g); border-color: rgba(212,175,55,0.32); }
+        .poster-close { color: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.05); }
+        .poster-close:hover { color: rgba(212,175,55,0.3); }
     </style>
 </head>
 <body>
 
-    <div id="modal"><div class="m-box"><div id="m-text" class="m-text"></div><div class="m-close" onclick="closeM()">[ 我认罪 ]</div></div></div>
+<!-- 尘埃粒子层 -->
+<canvas id="dust-canvas"></canvas>
 
-    <div id="s0" class="stage active"><h1>ADAM PARBERINGH</h1><div class="q">WELCOME TO VESPER</div><button onclick="go(1)">签订契约</button></div>
+<!-- 鼠标光晕 -->
+<div id="cursor-glow"></div>
 
-    <div id="s1" class="stage"><div class="q">虚度了多少载？</div><input id="age" type="number" placeholder="AGE"><button onclick="go(2)">下一步</button></div>
+<!-- ══ VIDEO INTRO ══════════════════════════════════════════════════════ -->
+<div id="video-intro">
+    <video id="intro-video" autoplay muted playsinline>
+        <source src="前面页面.mp4" type="video/mp4">
+    </video>
+    <div id="skip-btn" onclick="endIntro()">跳过 ›</div>
+</div>
 
-    <div id="s2" class="stage">
-        <div class="q">如何挥霍你的零件？</div>
-        <div class="tag-container" id="tag-box">
-            <div class="tag" onclick="toggleTag(this)">熬夜</div>
-            <div class="tag" onclick="toggleTag(this)">工位久坐</div>
-            <div class="tag" onclick="toggleTag(this)">咖啡续命</div>
-            <div class="tag" onclick="toggleTag(this)">情绪内耗</div>
+<!-- ══ BOOK STAGE ════════════════════════════════════════════════════════ -->
+<div id="book-stage">
+    <div id="book">
+
+        <!-- ── PAGE 0：封面 ─────────────────────────────────────────── -->
+        <div class="page active">
+            <div class="pi" style="justify-content:center;">
+                <div class="cover-title">VESPER</div>
+                <div class="cover-cn">生 死 簿</div>
+                <div class="cover-stamp">判</div>
+                <div class="cover-seal">死得起，才活得有底气</div>
+                <button class="fbtn" onclick="flipNext()">签订契约</button>
+                <div class="pnum">I</div>
+            </div>
         </div>
-        <div class="custom-area">
-            <input id="custom-val" type="text" placeholder="还有什么恶习？" onkeydown="if(event.keyCode==13) addCustomTag()">
-            <div class="add-trigger" onclick="addCustomTag()">+ 增加这项罪孽</div>
+
+        <!-- ── PAGE 1：年龄 ─────────────────────────────────────────── -->
+        <div class="page">
+            <div class="pi">
+                <!-- 进度点：1/4 -->
+                <div class="step-dots">
+                    <div class="sdot active"></div>
+                    <div class="sdot"></div>
+                    <div class="sdot"></div>
+                    <div class="sdot"></div>
+                </div>
+
+                <div class="pq">虚度了多少载？</div>
+
+                <div class="age-wrap">
+                    <input id="age" class="age-num" type="number"
+                           placeholder="—" inputmode="numeric" autocomplete="off"
+                           min="1" max="120"
+                           oninput="this.value=this.value.replace(/[^0-9]/g,''); if(this.value>120)this.value=120; if(this.value<0)this.value=''">
+                </div>
+                <div class="age-unit">岁</div>
+                <div class="hint">请如实交代，死神不看整数</div>
+
+                <button class="fbtn" onclick="toHabits()">翻页 ›</button>
+                <div class="pnum">II</div>
+            </div>
         </div>
-        <button onclick="go(3)">下一步</button>
+
+        <!-- ── PAGE 2：恶习标签 ─────────────────────────────────────── -->
+        <div class="page">
+            <div class="pi">
+                <!-- 进度点：2/4 -->
+                <div class="step-dots">
+                    <div class="sdot done"></div>
+                    <div class="sdot active"></div>
+                    <div class="sdot"></div>
+                    <div class="sdot"></div>
+                </div>
+
+                <div class="pq">如何挥霍你的零件？</div>
+
+                <div class="tag-box" id="tag-box">
+                    <div class="tag" onclick="toggleTag(this,event)">熬夜</div>
+                    <div class="tag" onclick="toggleTag(this,event)">工位久坐</div>
+                    <div class="tag" onclick="toggleTag(this,event)">咖啡续命</div>
+                    <div class="tag" onclick="toggleTag(this,event)">情绪内耗</div>
+                    <div class="tag" onclick="toggleTag(this,event)">暴饮暴食</div>
+                    <div class="tag" onclick="toggleTag(this,event)">烟草</div>
+                    <div class="tag" onclick="toggleTag(this,event)">酒精</div>
+                    <div class="tag" onclick="toggleTag(this,event)">焦虑失眠</div>
+                </div>
+                <div class="custom-row">
+                    <input id="custom-val" type="text" placeholder="还有什么罪孽…"
+                           onkeydown="if(event.keyCode===13) addCustomTag()">
+                    <span onclick="addCustomTag()">+ 列入档案</span>
+                </div>
+                <div class="hint">至少认罪一条，否则判官不受理</div>
+
+                <button class="fbtn" onclick="toRegret()">翻页 ›</button>
+                <div class="pnum">III</div>
+            </div>
+        </div>
+
+        <!-- ── PAGE 3：遗憾 ─────────────────────────────────────────── -->
+        <div class="page">
+            <div class="pi">
+                <!-- 进度点：3/4 -->
+                <div class="step-dots">
+                    <div class="sdot done"></div>
+                    <div class="sdot done"></div>
+                    <div class="sdot active"></div>
+                    <div class="sdot"></div>
+                </div>
+
+                <div class="pq">临死前最不甘心什么？</div>
+
+                <textarea id="reg" class="ptextarea" rows="3"
+                          placeholder="还没去过大理…"></textarea>
+                <div class="hint">判官凭此为你定制墓志铭</div>
+
+                <button class="fbtn" onclick="toWill()">翻页 ›</button>
+                <div class="pnum">IV</div>
+            </div>
+        </div>
+
+        <!-- ── PAGE 4：求生姿态 ─────────────────────────────────────── -->
+        <div class="page">
+            <div class="pi">
+                <!-- 进度点：4/4 -->
+                <div class="step-dots">
+                    <div class="sdot done"></div>
+                    <div class="sdot done"></div>
+                    <div class="sdot done"></div>
+                    <div class="sdot active"></div>
+                </div>
+
+                <div class="pq">此刻你的求生姿态？</div>
+
+                <div class="will-cards" id="will-cards">
+                    <div class="will-card" onclick="selectWill(this)">带我走吧，太累了</div>
+                    <div class="will-card" onclick="selectWill(this)">我还能再抢救一下</div>
+                    <div class="will-card" onclick="selectWill(this)">还没活够，再给点时间</div>
+                    <div class="will-card" onclick="selectWill(this)">我的腰还能再熬两个PPT</div>
+                </div>
+                <div class="hint">判官酌情允许此项留白，后果自负</div>
+
+                <button class="fbtn" onclick="toJudgment()">最终审判 ›</button>
+                <div class="pnum">V</div>
+            </div>
+        </div>
+
+        <!-- ── PAGE 5：判决结果 ─────────────────────────────────────── -->
+        <div class="page">
+            <div class="pi rpi">
+                <div id="timer">1440.00</div>
+                <div class="tlabel">今日剩余分钟</div>
+                <div id="res"><div class="loading-msg"></div></div>
+
+                <div class="rbtn-row" id="rbtn-row" style="display:none;">
+                    <button class="rbtn" onclick="openPoster()">[ 保存契约 ]</button>
+                    <button class="rbtn" onclick="restart()">[ 再审一次 ]</button>
+                </div>
+
+                <div id="daily-section" style="display:none;">
+                    <div class="daily-label">今日记录</div>
+                    <div class="action-row">
+                        <button class="btn-indulge" onclick="showSheet('indulge')">放 纵</button>
+                        <button class="btn-redeem"  onclick="showSheet('redeem')">救 赎</button>
+                    </div>
+                    <div id="quick-comment"></div>
+                    <div id="action-log"></div>
+                </div>
+
+                <div class="pnum">VI</div>
+            </div>
+        </div>
+
+        <!-- ── PAGE 6：封底 ─────────────────────────────────────────── -->
+        <div class="page">
+            <div class="pi" style="justify-content:flex-end; padding-bottom:40px;">
+                <div style="font-size:0.5rem;color:rgba(212,175,55,0.06);letter-spacing:10px;text-align:center;">VESPER</div>
+            </div>
+        </div>
+
+    </div><!-- #book -->
+
+    <!-- 判官批注遮罩 -->
+    <div id="margin-overlay" onclick="closeMarginNote()"></div>
+    <!-- 判官批注 -->
+    <div id="margin-note" onclick="closeMarginNote()">
+        <div id="margin-note-text"></div>
+        <span class="note-verdict">[ 我认罪 ]</span>
     </div>
+</div><!-- #book-stage -->
 
-    <div id="s3" class="stage"><div class="q">临死前最不甘心什么？</div><textarea id="reg" rows="2" placeholder="还没去过大理..."></textarea><button onclick="go(4)">下一步</button></div>
+<!-- ══ BOTTOM SHEET ══════════════════════════════════════════════════════ -->
+<div id="sheet-overlay" onclick="closeSheet()"></div>
+<div id="action-sheet">
+    <div class="sheet-title" id="sheet-title">刚才你...</div>
+    <div class="sheet-tags" id="sheet-tags"></div>
+    <div class="sheet-cancel" onclick="closeSheet()">取消</div>
+</div>
 
-    <div id="s4" class="stage">
-        <div class="q">此刻你的求生姿态？</div>
-        <select id="will">
-            <option value="带我走吧，太累了">带我走吧，太累了</option>
-            <option value="我还能再抢救一下">我还能再抢救一下</option>
-            <option value="还没活够，再给点时间">还没活够，再给点时间</option>
-            <option value="我的腰还能再熬两个PPT">我的腰还能再熬两个PPT</option>
-        </select>
-        <button onclick="run()">最终审判</button>
+<!-- ══ POSTER MODAL ══════════════════════════════════════════════════════ -->
+<div id="poster-modal">
+    <div id="poster">
+        <div class="p-brand">V E S P E R</div>
+        <div class="p-loss-label">今日损耗</div>
+        <div class="p-loss" id="p-loss">—</div>
+        <div class="p-loss-unit">分钟</div>
+        <div class="p-divider"></div>
+        <div class="p-lines" id="p-lines"></div>
+        <div class="p-epitaph">
+            <div class="p-epitaph-label">墓志铭</div>
+            <div class="p-epitaph-val" id="p-epitaph-val"></div>
+        </div>
+        <div class="p-slogan">死得起，才活得有底气。</div>
     </div>
+    <div class="poster-hint">手机截图保存 / 或点击下方下载</div>
+    <div class="poster-dl" onclick="downloadPoster()">[ 下载图片 ]</div>
+    <div class="poster-close" onclick="closePoster()">[ 关闭 ]</div>
+</div>
 
-    <div id="s5" class="stage"><div id="t">86400.000</div><div id="res">正在剥离虚伪...</div></div>
+<script>
+// ── State ──────────────────────────────────────────────────────────────
+let time = 1440, selectedTags = [], posterData = {};
+let minutesLostTotal = 0, loadingActive = false;
+let lastInsultIdx = -1, selectedWill = '';
+let currentPage = 0, isFlipping = false;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-    <script>
-        let cur = 0, time = 86400, selectedTags = [];
-        
-        // 💀 扩充版毒舌语料库
-        const insults = [
-            "几岁了？别让死神亲自去翻你的出生证。",
-            "怎么，连敲击键盘的力气都在昨晚的加班里耗光了？",
-            "空白？你的脑干也像你的输入框一样空吗？",
-            "交代你的罪孽，别在这装清白无辜。",
-            "死神面前耍小聪明，以为不填就能瞒天过海？",
-            "别磨蹭了，火葬场的炉子可是按分钟计费的。",
-            "连直面自己烂透了的人生的勇气都没有？填上。",
-            "你的沉默连一具合格的尸体都不如。",
-            "想空手套白狼？判官不收你这种废纸。",
-            "写下你的遗憾，别像个木头人一样等死。",
-            "你那点微不足道的自尊心，不值得在这里浪费时间。",
-            "再不填，我就直接按最高折损率把你打包带走。"
-        ];
+// ── Data ───────────────────────────────────────────────────────────────
+const indulgeActions = [
+    { label: '熬夜',   loss: 20, comment: '又一个夜晚献给了屏幕。判官记录在案。' },
+    { label: '喝酒',   loss: 25, comment: '肝脏在加班，没有加班费。' },
+    { label: '抽烟',   loss: 30, comment: '每一口都在给火葬场省燃料。' },
+    { label: '点外卖', loss: 15, comment: '油腻的盒子，装着廉价的活法。' },
+    { label: '刷手机', loss: 10, comment: '又用别人的人生填满了自己的空洞。' },
+    { label: '没运动', loss: 12, comment: '你的肌肉在萎缩，你的借口在生长。' },
+    { label: '久坐',   loss: 8,  comment: '腰椎递交了辞呈，你没注意到。' },
+];
+const redeemActions = [
+    { label: '喝了水', gain: 5,  comment: '算你识相。别以为一杯水能洗清你的罪孽。' },
+    { label: '去运动', gain: 18, comment: '勉强可以。下次别让判官等这么久。' },
+    { label: '早点睡', gain: 22, comment: '今晚算你一功。明天别又熬回去。' },
+    { label: '吃蔬菜', gain: 8,  comment: '你的胃表示短暂的感谢。' },
+    { label: '去散步', gain: 10, comment: '腿还没废。难得。' },
+    { label: '冥想了', gain: 12, comment: '脑子暂时停止内耗。继续。' },
+];
+const insults = [
+    "几岁了？别让死神亲自去翻你的出生证。",
+    "连敲击键盘的力气都在昨晚的加班里耗光了？",
+    "空白？你的脑干也像你的输入框一样空吗？",
+    "交代你的罪孽，别在这装清白无辜。",
+    "死神面前耍小聪明，以为不填就能瞒天过海？",
+    "别磨蹭了，火葬场的炉子可是按分钟计费的。",
+    "连直面自己人生的勇气都没有？填上。",
+    "你的沉默连一具合格的尸体都不如。",
+    "写下你的遗憾，别像个木头人一样等死。",
+    "再不填，我就直接按最高折损率把你打包带走。"
+];
 
-        let lastInsultIndex = -1; // 用于记录上一次骂了哪句，防止连续重复
+// ── 鼠标光晕 ────────────────────────────────────────────────────────────
+const glow = document.getElementById('cursor-glow');
+document.addEventListener('mousemove', e => {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top  = e.clientY + 'px';
+});
 
-        function toggleTag(el) {
-            el.classList.toggle('selected');
-            const tag = el.innerText;
-            if(selectedTags.includes(tag)) selectedTags = selectedTags.filter(t => t !== tag);
-            else selectedTags.push(tag);
+// ── Intro ──────────────────────────────────────────────────────────────
+function initIntro() {
+    const video = document.getElementById('intro-video');
+    // 视频不存在/加载失败时立即跳过，不等待7s
+    video.addEventListener('ended', endIntro);
+    video.addEventListener('error', () => endIntro(true));
+    video.addEventListener('stalled', () => setTimeout(() => endIntro(true), 1200));
+    // 无视频源时也快速跳过
+    if (!video.src && !video.querySelector('source[src]')) {
+        setTimeout(() => endIntro(true), 100);
+    } else {
+        setTimeout(endIntro, 8000);
+    }
+}
+function endIntro(immediate) {
+    const intro = document.getElementById('video-intro');
+    if (intro.classList.contains('fade-out')) return;
+    if (immediate) {
+        intro.style.transition = 'opacity 0.5s ease';
+    }
+    intro.classList.add('fade-out');
+    setTimeout(() => {
+        intro.style.display = 'none';
+        document.getElementById('book-stage').classList.add('visible');
+    }, immediate ? 500 : 950);
+}
+
+// ── 翻页动画 ────────────────────────────────────────────────────────────
+function flipTo(n, cb) {
+    const pages = document.querySelectorAll('#book .page');
+    if (n === currentPage || isFlipping || n < 0 || n >= pages.length) return;
+    isFlipping = true;
+    const outEl = pages[currentPage];
+    const inEl  = pages[n];
+    outEl.classList.add('flip-out');
+    setTimeout(() => {
+        outEl.classList.remove('active', 'flip-out');
+        inEl.classList.add('flip-in');
+        setTimeout(() => {
+            inEl.classList.remove('flip-in');
+            inEl.classList.add('active');
+            currentPage = n;
+            isFlipping  = false;
+            if (cb) cb();
+        }, 480);
+    }, 360);
+}
+function flipNext(cb) { flipTo(currentPage + 1, cb); }
+
+// ── 导航（每题单独验证）──────────────────────────────────────────────────
+function toHabits() {
+    if (!document.getElementById('age').value) return showMarginNote();
+    flipNext();
+}
+function toRegret() {
+    if (selectedTags.length === 0) return showMarginNote();
+    flipNext();
+}
+function toWill() {
+    if (!document.getElementById('reg').value.trim()) return showMarginNote();
+    flipNext();
+}
+function toJudgment() {
+    // 求生姿态可留白
+    flipNext(() => setTimeout(run, 200));
+}
+
+// ── Will 选项卡片 ────────────────────────────────────────────────────────
+function selectWill(el) {
+    document.querySelectorAll('.will-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedWill = el.textContent.trim();
+}
+
+// ── 判官批注（居中浮现）────────────────────────────────────────────────
+let marginTimer = null;
+function showMarginNote() {
+    let idx = Math.floor(Math.random() * insults.length);
+    while (idx === lastInsultIdx) idx = Math.floor(Math.random() * insults.length);
+    lastInsultIdx = idx;
+    document.getElementById('margin-note-text').textContent = insults[idx];
+    document.getElementById('margin-note').classList.add('show');
+    document.getElementById('margin-overlay').classList.add('show');
+    if (navigator.vibrate) navigator.vibrate([40, 20, 80]);
+    if (marginTimer) clearTimeout(marginTimer);
+    marginTimer = setTimeout(closeMarginNote, 4200);
+}
+function closeMarginNote() {
+    document.getElementById('margin-note').classList.remove('show');
+    document.getElementById('margin-overlay').classList.remove('show');
+    if (marginTimer) { clearTimeout(marginTimer); marginTimer = null; }
+}
+
+// ── 标签交互（波纹 + 闪光）──────────────────────────────────────────────
+function toggleTag(el, event) {
+    // 波纹
+    const rect = el.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const cx   = event ? event.clientX - rect.left : rect.width  / 2;
+    const cy   = event ? event.clientY - rect.top  : rect.height / 2;
+    const rip  = document.createElement('div');
+    rip.className = 'ripple';
+    rip.style.cssText = `width:${size}px;height:${size}px;left:${cx - size/2}px;top:${cy - size/2}px;`;
+    el.appendChild(rip);
+    setTimeout(() => rip.remove(), 430);
+
+    // 切换选中
+    el.classList.toggle('selected');
+    const tag = el.innerText.trim();
+    selectedTags = selectedTags.includes(tag)
+        ? selectedTags.filter(t => t !== tag)
+        : [...selectedTags, tag];
+
+    // 闪光
+    el.classList.remove('flash');
+    void el.offsetWidth;
+    el.classList.add('flash');
+    setTimeout(() => el.classList.remove('flash'), 320);
+}
+
+function addCustomTag() {
+    const input = document.getElementById('custom-val');
+    const val = input.value.trim();
+    if (!val) return;
+    const tagBox = document.getElementById('tag-box');
+    const el = document.createElement('div');
+    el.className = 'tag selected';
+    el.innerText = val;
+    el.onclick = function(e) { toggleTag(this, e); };
+    tagBox.appendChild(el);
+    selectedTags.push(val);
+    input.value = '';
+    tagBox.scrollTop = tagBox.scrollHeight;
+}
+
+// ── Loading 打字机 ───────────────────────────────────────────────────────
+async function typewriter(el, text, speed = 55) {
+    el.textContent = '';
+    for (const char of text) {
+        if (!loadingActive) return;
+        el.textContent += char;
+        await sleep(speed);
+    }
+}
+async function runLoadingSequence(resBox) {
+    const msgs = [
+        '判官正在翻阅生死簿',
+        '你的档案已从轮回中提取',
+        '正在核算你的生命折损',
+        '凌迟还是斩首，判官正在权衡',
+        '墓志铭拟定中',
+        '判决即将宣布'
+    ];
+    for (const msg of msgs) {
+        if (!loadingActive) return;
+        resBox.innerHTML = '<div class="loading-msg"></div>';
+        await typewriter(resBox.querySelector('.loading-msg'), msg);
+        await sleep(1000);
+    }
+    while (loadingActive) {
+        resBox.innerHTML = '<div class="loading-msg"></div>';
+        await typewriter(resBox.querySelector('.loading-msg'), '判决即将宣布');
+        await sleep(900);
+    }
+}
+
+// ── 格式化判决文本 ───────────────────────────────────────────────────────
+function formatJudgment(html) {
+    const lines = html.split('<br>').map(l => l.trim()).filter(l => l);
+    let verdictFound = false, result = '', redemptionLines = [], delay = 0;
+    lines.forEach(line => {
+        if (line.includes('寿命本日净扣除')) {
+            verdictFound = true;
+            result += `<div class="j-verdict" style="animation-delay:${delay}s">${line}</div>`;
+            delay += 0.4;
+        } else if (verdictFound) {
+            redemptionLines.push(line);
+        } else {
+            result += `<div class="j-line" style="animation-delay:${delay}s">${line}</div>`;
+            delay += 0.35;
         }
+    });
+    if (redemptionLines.length) {
+        result += `<div class="j-redemption" style="animation-delay:${delay}s">${redemptionLines.join('<br>')}</div>`;
+    }
+    return result;
+}
 
-        function addCustomTag() {
-            const input = document.getElementById('custom-val');
-            const val = input.value.trim();
-            if(val) {
-                const tagBox = document.getElementById('tag-box');
-                const newTag = document.createElement('div');
-                newTag.className = 'tag selected';
-                newTag.innerText = val;
-                newTag.onclick = function() { toggleTag(this); };
-                tagBox.appendChild(newTag);
-                selectedTags.push(val);
-                input.value = '';
-                tagBox.scrollTop = tagBox.scrollHeight;
+// ── API 调用 ─────────────────────────────────────────────────────────────
+async function run() {
+    const tEl    = document.getElementById('timer');
+    const resBox = document.getElementById('res');
+    const timerInterval = setInterval(() => { time -= 0.001; tEl.innerText = time.toFixed(2); }, 11);
+    const flickerTimer  = setInterval(() => {
+        tEl.style.color = Math.random() > 0.65 ? 'rgba(212,175,55,0.1)' : 'var(--g)';
+    }, 280);
+    loadingActive = true;
+    runLoadingSequence(resBox);
+
+    try {
+        const API_KEY = 'app-7JVqXfvmfhQPtviaeHTCWjD6';
+        const r = await fetch('https://api.dify.ai/v1/workflows/run', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                inputs: {
+                    age:            document.getElementById('age').value,
+                    lifestyle_tags: selectedTags.join('、'),
+                    deep_regret:    document.getElementById('reg').value,
+                    will_to_live:   selectedWill || '未表态'
+                },
+                response_mode: "blocking",
+                user: "vesper_user"
+            })
+        });
+        const d = await r.json();
+        const outputText = d.data.outputs.text || d.data.outputs.answer;
+        const res = JSON.parse(outputText);
+
+        loadingActive = false;
+        clearInterval(timerInterval);
+        clearInterval(flickerTimer);
+
+        const minutesLost = parseInt(res.minutes_lost) || 180;
+        minutesLostTotal  = minutesLost;
+        time = Math.max(0, time - minutesLost);
+        tEl.innerText = time.toFixed(2);
+        if (navigator.vibrate) navigator.vibrate([120, 80, 200]);
+        tEl.style.color = '#ff0000';
+        resBox.innerHTML = formatJudgment(res.judgment);
+
+        const lineCount = res.judgment.split('<br>').filter(l => l.trim()).length;
+        setTimeout(() => {
+            const epitaphText = res.epitaph || '';
+            resBox.innerHTML += `
+                <div class="epitaph-block" style="opacity:0;animation:lineIn 0.6s ease forwards;">
+                    <div class="epitaph-label">[ 墓志铭 ]</div>
+                    <div class="epitaph-text">${epitaphText}</div>
+                </div>`;
+            posterData = { minutesLost, judgment: res.judgment, epitaph: epitaphText };
+            document.getElementById('rbtn-row').style.display = 'flex';
+            document.getElementById('daily-section').style.display = 'block';
+        }, lineCount * 350 + 600);
+
+    } catch (e) {
+        loadingActive = false;
+        clearInterval(timerInterval);
+        clearInterval(flickerTimer);
+        tEl.style.color = 'var(--g)';
+        resBox.innerHTML = `<div class="loading-msg">判官暂时离席。<br>请稍后再试。</div>`;
+        console.error(e);
+    }
+}
+
+// ── 今日行为记录 ─────────────────────────────────────────────────────────
+function showSheet(type) {
+    const actions = type === 'indulge' ? indulgeActions : redeemActions;
+    document.getElementById('sheet-title').textContent = type === 'indulge' ? '刚才你又...' : '刚才你...';
+    document.getElementById('sheet-tags').innerHTML = actions.map(a =>
+        `<div class="sheet-tag" onclick="selectAction('${type}','${a.label}')">${a.label}</div>`
+    ).join('');
+    document.getElementById('sheet-overlay').style.display = 'block';
+    document.getElementById('action-sheet').classList.add('open');
+}
+function closeSheet() {
+    document.getElementById('action-sheet').classList.remove('open');
+    document.getElementById('sheet-overlay').style.display = 'none';
+}
+function selectAction(type, label) {
+    closeSheet();
+    const actions = type === 'indulge' ? indulgeActions : redeemActions;
+    const action  = actions.find(a => a.label === label);
+    if (!action) return;
+    const tEl       = document.getElementById('timer');
+    const commentEl = document.getElementById('quick-comment');
+    if (type === 'indulge') {
+        time = Math.max(0, time - action.loss);
+        minutesLostTotal += action.loss;
+        tEl.style.color = '#ff0000';
+        if (navigator.vibrate) navigator.vibrate([60, 40, 120]);
+        let flicks = 0;
+        const f = setInterval(() => {
+            tEl.style.opacity = flicks % 2 === 0 ? '0.2' : '1';
+            if (++flicks > 6) { clearInterval(f); tEl.style.opacity = '1'; }
+        }, 75);
+    } else {
+        time = Math.min(1440, time + action.gain);
+        tEl.style.color = 'var(--g)';
+        if (navigator.vibrate) navigator.vibrate(60);
+    }
+    tEl.innerText = time.toFixed(2);
+    commentEl.textContent = action.comment;
+    commentEl.classList.add('show');
+    setTimeout(() => commentEl.classList.remove('show'), 4500);
+    const now   = new Date();
+    const ts    = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+    const delta = type === 'indulge' ? `-${action.loss}分钟` : `+${action.gain}分钟`;
+    const entry = document.createElement('div');
+    entry.className = `log-entry ${type}`;
+    entry.innerHTML = `<span class="log-time">${ts}</span><span class="log-action">${label}</span><span class="log-delta">${delta}</span>`;
+    document.getElementById('action-log').insertBefore(entry, document.getElementById('action-log').firstChild);
+}
+
+// ── 重置 ──────────────────────────────────────────────────────────────────
+function restart() {
+    time = 1440; selectedTags = []; posterData = {};
+    minutesLostTotal = 0; loadingActive = false; selectedWill = '';
+    ['age', 'reg'].forEach(id => { document.getElementById(id).value = ''; });
+    document.querySelectorAll('.will-card').forEach(c => c.classList.remove('selected'));
+    const tEl = document.getElementById('timer');
+    tEl.style.color = 'var(--g)'; tEl.innerText = '1440.00';
+    document.getElementById('res').innerHTML = '<div class="loading-msg"></div>';
+    document.getElementById('rbtn-row').style.display = 'none';
+    document.getElementById('daily-section').style.display = 'none';
+    document.getElementById('action-log').innerHTML = '';
+    document.getElementById('quick-comment').textContent = '';
+    const defaults = ['熬夜','工位久坐','咖啡续命','情绪内耗','暴饮暴食','烟草','酒精','焦虑失眠'];
+    document.querySelectorAll('#tag-box .tag').forEach(t => {
+        t.classList.remove('selected', 'flash');
+        if (!defaults.includes(t.innerText.trim())) t.remove();
+    });
+    document.querySelectorAll('#book .page').forEach((p, i) => {
+        p.classList.remove('active', 'flip-in', 'flip-out');
+        if (i === 0) p.classList.add('active');
+    });
+    currentPage = 0; isFlipping = false;
+}
+
+// ── 海报 ──────────────────────────────────────────────────────────────────
+function openPoster() {
+    document.getElementById('p-loss').textContent = posterData.minutesLost || '—';
+    const lines = (posterData.judgment || '')
+        .split('<br>').map(l => l.trim())
+        .filter(l => l && !l.includes('寿命本日净扣除')).slice(0, 3);
+    document.getElementById('p-lines').innerHTML = lines.join('<br>');
+    document.getElementById('p-epitaph-val').textContent = (posterData.epitaph || '').replace(/<[^>]+>/g, '');
+    document.getElementById('poster-modal').classList.add('open');
+}
+function closePoster() { document.getElementById('poster-modal').classList.remove('open'); }
+function downloadPoster() {
+    html2canvas(document.getElementById('poster'), {
+        backgroundColor: '#000000', scale: 2, useCORS: true, logging: false
+    }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'vesper_contract.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+}
+
+// ── 按钮点击波纹（所有 fbtn）────────────────────────────────────────────────
+document.addEventListener('click', e => {
+    const btn = e.target.closest('.fbtn');
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const rip  = document.createElement('div');
+    rip.className = 'btn-ripple';
+    rip.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px;`;
+    btn.appendChild(rip);
+    setTimeout(() => rip.remove(), 560);
+});
+
+// ── 古籍幽灵墨迹（纸张纹路）────────────────────────────────────────────────
+function addPaperTexture() {
+    const pool = [
+        '死','命','运','年','岁','月','寒','暑','光','阴',
+        '流','逝','虚','度','余','烬','审','判','契','约',
+        '遗','憾','魂','灵','轮','回','宿','尽','终','始',
+        '苦','悲','咎','孽','罪','惑','执','念','幽','冥'
+    ];
+    document.querySelectorAll('#book .pi').forEach(pi => {
+        const layer = document.createElement('div');
+        layer.className = 'ghost-chars';
+        layer.setAttribute('aria-hidden', 'true');
+        const count = 16 + Math.floor(Math.random() * 10);
+        for (let i = 0; i < count; i++) {
+            const s = document.createElement('span');
+            s.className = 'ghost-char';
+            s.textContent = pool[Math.floor(Math.random() * pool.length)];
+            const size    = 18 + Math.random() * 52;
+            const opacity = 0.022 + Math.random() * 0.052;
+            const rot     = -30 + Math.random() * 60;
+            s.style.cssText = `left:${2+Math.random()*96}%;top:${1+Math.random()*98}%;font-size:${size}px;opacity:${opacity};transform:rotate(${rot}deg);`;
+            layer.appendChild(s);
+        }
+        pi.insertBefore(layer, pi.firstChild);
+    });
+}
+
+// ── 尘埃粒子（古籍浮尘氛围）────────────────────────────────────────────────
+function initDust() {
+    const canvas = document.getElementById('dust-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, particles;
+
+    function resize() {
+        W = canvas.width  = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+    }
+    function makeParticle() {
+        return {
+            x: Math.random() * W,
+            y: Math.random() * H,
+            r: 0.4 + Math.random() * 1.1,
+            vx: (Math.random() - 0.5) * 0.18,
+            vy: -0.05 - Math.random() * 0.12,
+            a: 0.01 + Math.random() * 0.055,
+            maxA: 0.02 + Math.random() * 0.06,
+            da: (Math.random() < 0.5 ? 1 : -1) * 0.00015,
+        };
+    }
+    function init() {
+        resize();
+        particles = Array.from({ length: 55 }, makeParticle);
+    }
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        for (const p of particles) {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(200,148,40,${p.a})`;
+            ctx.fill();
+            p.x += p.vx; p.y += p.vy;
+            p.a += p.da;
+            if (p.a > p.maxA || p.a < 0.005) p.da *= -1;
+            if (p.y < -5 || p.x < -5 || p.x > W + 5) {
+                p.x = Math.random() * W;
+                p.y = H + 5;
+                p.vy = -0.05 - Math.random() * 0.12;
             }
         }
+        requestAnimationFrame(draw);
+    }
+    window.addEventListener('resize', resize);
+    init();
+    draw();
+}
 
-        function showM() {
-            // 🧠 防连续重复算法
-            let newIndex = Math.floor(Math.random() * insults.length);
-            while (newIndex === lastInsultIndex) {
-                newIndex = Math.floor(Math.random() * insults.length);
-            }
-            lastInsultIndex = newIndex; // 记录这次的索引
-            
-            document.getElementById('m-text').innerText = insults[newIndex];
-            document.getElementById('modal').style.display = 'flex';
-        }
-
-        function closeM() { document.getElementById('modal').style.display = 'none'; }
-
-        function go(n) {
-            if (n === 2 && !document.getElementById('age').value) return showM();
-            if (n === 3 && selectedTags.length === 0) return showM();
-            if (n === 4 && !document.getElementById('reg').value) return showM();
-            document.getElementById(`s${cur}`).classList.remove('active');
-            document.getElementById(`s${n}`).classList.add('active');
-            cur = n;
-        }
-
-        async function run() {
-            go(5);
-            const t = document.getElementById('t'), resBox = document.getElementById('res');
-            const timerInterval = setInterval(() => { time -= 0.008; t.innerText = time.toFixed(3); }, 11);
-
-            try {
-                const API_KEY = 'app-7JVqXfvmfhQPtviaeHTCWjD6'; // 🚀 别忘了填入你真实的 Key
-                const r = await fetch('https://api.dify.ai/v1/workflows/run', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        inputs: { 
-                            age: document.getElementById('age').value, 
-                            lifestyle_tags: selectedTags.join(', '), 
-                            deep_regret: document.getElementById('reg').value, 
-                            will_to_live: document.getElementById('will').value 
-                        },
-                        response_mode: "blocking", user: "adam_p"
-                    })
-                });
-
-                const d = await r.json();
-                const outputText = d.data.outputs.text || d.data.outputs.answer;
-                const res = JSON.parse(outputText);
-
-                resBox.classList.add('shock');
-                time -= (parseInt(res.seconds_lost) || 5000);
-                t.style.color = '#ff0000';
-
-                resBox.innerHTML = res.judgment;
-                
-                setTimeout(() => {
-                    resBox.classList.remove('shock');
-                    resBox.innerHTML += `<div class="epitaph">[ 墓志铭 ]<br>${res.epitaph}</div>`;
-                }, 3000);
-
-            } catch (e) {
-                resBox.innerHTML = '判官沉默了。<br><span style="font-size:.85rem;color:#555;letter-spacing:1px">网络连接或服务暂时不可用，请稍后再试。</span>';
-            }
-        }
-    </script>
+// ── 启动 ──────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+    initIntro();
+    addPaperTexture();
+    initDust();
+});
+</script>
 </body>
 </html>
