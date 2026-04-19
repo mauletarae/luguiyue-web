@@ -440,6 +440,48 @@ document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
 
 
 /* ============================================================
+   SCREENSHOT CAROUSELS (screens 0, 2, 4)
+   ============================================================ */
+(function initScreenshotCarousels(){
+    document.querySelectorAll('.ss-wrap').forEach(wrap=>{
+        const slides  = wrap.querySelectorAll('.ss-slide');
+        const dots    = wrap.querySelectorAll('.ss-dot');
+        const capEl   = wrap.querySelector('.ss-cap-text');
+        const captions= capEl ? capEl.dataset.captions.split(',') : [];
+        let cur = 0;
+        let timer;
+
+        function goTo(n){
+            slides[cur].classList.remove('ss-active');
+            dots[cur].classList.remove('ss-dot-on');
+            cur = (n + slides.length) % slides.length;
+            slides[cur].classList.add('ss-active');
+            dots[cur].classList.add('ss-dot-on');
+            if(capEl && captions[cur]) capEl.textContent = captions[cur];
+        }
+
+        function startAuto(){
+            clearInterval(timer);
+            timer = setInterval(()=>goTo(cur+1), 3000);
+        }
+
+        wrap.querySelector('.ss-next').addEventListener('click',()=>{ goTo(cur+1); startAuto(); });
+        wrap.querySelector('.ss-prev').addEventListener('click',()=>{ goTo(cur-1); startAuto(); });
+        dots.forEach((dot,i)=>dot.addEventListener('click',()=>{ goTo(i); startAuto(); }));
+
+        // Swipe support
+        let sx=0;
+        wrap.addEventListener('touchstart',e=>{ sx=e.touches[0].clientX; },{passive:true});
+        wrap.addEventListener('touchend',e=>{
+            const dx=e.changedTouches[0].clientX-sx;
+            if(Math.abs(dx)>30){ goTo(dx<0?cur+1:cur-1); startAuto(); }
+        },{passive:true});
+
+        startAuto();
+    });
+})();
+
+/* ============================================================
    SCREEN 4 INTERACTIONS — 客服小九
    ============================================================ */
 (function initKefu(){

@@ -342,36 +342,26 @@
 
                             <!-- ===== Screen 0: 月之案面 ===== -->
                             <div class="app-screen active" id="screen-0">
-                                <div class="yz-wrap">
-                                    <div class="as-header yz-header">
-                                        <span>月之案面</span>
-                                        <span style="font-size:16px">🎬</span>
+                                <div class="ss-wrap" data-ss="yz">
+                                    <div class="ss-slides">
+                                        <img class="ss-slide ss-active" src="imgs/screens/yz-1.png" alt="月之案面 - 创意输入">
+                                        <img class="ss-slide" src="imgs/screens/yz-2.png" alt="月之案面 - 视频类型选择">
+                                        <img class="ss-slide" src="imgs/screens/yz-3.png" alt="月之案面 - 历史项目">
+                                        <img class="ss-slide" src="imgs/screens/yz-4.jpg" alt="月之案面 - 生成完成">
                                     </div>
-                                    <div class="yz-input-area">
-                                        <span class="yz-hint" id="yz-ph">月光下独行的少女...</span>
+                                    <div class="ss-caption-bar">
+                                        <span class="ss-cap-text" data-captions="创意输入,视频类型,历史项目,生成完成">创意输入</span>
                                     </div>
-                                    <button class="yz-gen-btn" id="yz-gen">✦ AI 生成分镜</button>
-                                    <div class="yz-panels" id="yz-panels">
-                                        <div class="yz-panel" data-idx="0">
-                                            <div class="yz-thumb">
-                                                <svg viewBox="0 0 56 38"><rect width="56" height="38" fill="#1a1060"/><circle cx="44" cy="6" r="4" fill="#8b5cf6" opacity=".7"/><circle cx="16" cy="22" r="4" fill="#c4b5fd" opacity=".6"/><path d="M12 28 L16 22 L20 28" fill="#6366f1" opacity=".5"/><path d="M0 30 Q14 25 28 28 Q42 31 56 27" stroke="#6366f1" stroke-width=".5" fill="none" opacity=".4"/></svg>
-                                            </div>
-                                            <div class="yz-cap">01 · 月夜独行</div>
+                                    <div class="ss-controls">
+                                        <button class="ss-arr ss-prev">‹</button>
+                                        <div class="ss-dots">
+                                            <button class="ss-dot ss-dot-on"></button>
+                                            <button class="ss-dot"></button>
+                                            <button class="ss-dot"></button>
+                                            <button class="ss-dot"></button>
                                         </div>
-                                        <div class="yz-panel" data-idx="1">
-                                            <div class="yz-thumb">
-                                                <svg viewBox="0 0 56 38"><rect width="56" height="38" fill="#110840"/><circle cx="28" cy="15" r="7" fill="none" stroke="#8b5cf6" stroke-width="1"/><circle cx="25" cy="13" r="1.2" fill="#e2e8ff"/><circle cx="31" cy="13" r="1.2" fill="#e2e8ff"/><path d="M23 19 Q28 22 33 19" stroke="#e2e8ff" stroke-width=".7" fill="none" opacity=".7"/></svg>
-                                            </div>
-                                            <div class="yz-cap">02 · 情绪特写</div>
-                                        </div>
-                                        <div class="yz-panel yz-wide" data-idx="2">
-                                            <div class="yz-thumb">
-                                                <svg viewBox="0 0 112 38"><rect width="112" height="38" fill="#0a0830"/><rect x="0" y="26" width="112" height="12" fill="#1a1060"/><rect x="8" y="16" width="7" height="22" fill="#6366f1" opacity=".45"/><rect x="18" y="10" width="9" height="28" fill="#6366f1" opacity=".35"/><rect x="30" y="18" width="6" height="20" fill="#8b5cf6" opacity=".4"/><rect x="40" y="13" width="10" height="25" fill="#6366f1" opacity=".3"/><rect x="54" y="20" width="7" height="18" fill="#8b5cf6" opacity=".35"/><circle cx="88" cy="8" r="4" fill="#8b5cf6" opacity=".5"/></svg>
-                                            </div>
-                                            <div class="yz-cap">03 · 城市远景</div>
-                                        </div>
+                                        <button class="ss-arr ss-next">›</button>
                                     </div>
-                                    <div class="yz-status" id="yz-status"></div>
                                 </div>
                             </div>
 
@@ -400,28 +390,25 @@
 
                             <!-- ===== Screen 2: 灵感瞬间 ===== -->
                             <div class="app-screen" id="screen-2">
-                                <div class="lg-wrap">
-                                    <div class="as-header">
-                                        <span>灵感瞬间</span>
-                                        <span style="font-size:16px">💡</span>
+                                <div class="ss-wrap" data-ss="lg">
+                                    <div class="ss-slides">
+                                        <img class="ss-slide ss-active" src="imgs/screens/lg-1.png" alt="灵感瞬间 - 主页">
+                                        <img class="ss-slide" src="imgs/screens/lg-2.png" alt="灵感瞬间 - 卡片浏览">
+                                        <img class="ss-slide" src="imgs/screens/lg-3.png" alt="灵感瞬间 - 记录灵感">
+                                        <img class="ss-slide" src="imgs/screens/lg-4.png" alt="灵感瞬间 - 历史记录">
                                     </div>
-                                    <div class="lg-mic-area">
-                                        <button class="lg-mic" id="lg-mic">
-                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor"/><path d="M5 10a7 7 0 0014 0" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="21" x2="15" y2="21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                                        </button>
-                                        <div class="lg-mic-hint" id="lg-hint">点击录制灵感</div>
+                                    <div class="ss-caption-bar">
+                                        <span class="ss-cap-text" data-captions="主页卡片,卡片浏览,记录灵感,历史记录">主页卡片</span>
                                     </div>
-                                    <div class="lg-cards" id="lg-cards">
-                                        <div class="lg-card">
-                                            <span class="lg-card-time">1小时前</span>
-                                            <span class="lg-card-text">用负空间重新设计导航逻辑</span>
-                                            <span class="lg-card-tag">设计</span>
+                                    <div class="ss-controls">
+                                        <button class="ss-arr ss-prev">‹</button>
+                                        <div class="ss-dots">
+                                            <button class="ss-dot ss-dot-on"></button>
+                                            <button class="ss-dot"></button>
+                                            <button class="ss-dot"></button>
+                                            <button class="ss-dot"></button>
                                         </div>
-                                        <div class="lg-card">
-                                            <span class="lg-card-time">昨天</span>
-                                            <span class="lg-card-text">AI 产品最小验证单元是什么？</span>
-                                            <span class="lg-card-tag">产品</span>
-                                        </div>
+                                        <button class="ss-arr ss-next">›</button>
                                     </div>
                                 </div>
                             </div>
@@ -473,35 +460,23 @@
 
                             <!-- ===== Screen 4: 客服小九 ===== -->
                             <div class="app-screen" id="screen-4">
-                                <div class="kf-wrap">
-                                    <div class="kf-header">
-                                        <div class="kf-avatar-icon">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 3a9 9 0 00-9 9v1.5a1.5 1.5 0 001.5 1.5H6a1.5 1.5 0 001.5-1.5v-2A1.5 1.5 0 006 10h-.93A7 7 0 0119 10h-.07a1.5 1.5 0 00-1.43 1.5v2A1.5 1.5 0 0019 15h1.5A1.5 1.5 0 0022 13.5V12a9 9 0 00-9-9z"/></svg>
-                                        </div>
-                                        <div class="kf-info">
-                                            <div class="kf-name">客服小九</div>
-                                            <div class="kf-status"><span class="kf-dot"></span>在线服务中</div>
-                                        </div>
-                                        <div class="kf-model-badge">DeepSeek-V3</div>
+                                <div class="ss-wrap" data-ss="kf">
+                                    <div class="ss-slides">
+                                        <img class="ss-slide ss-active" src="imgs/screens/kf-1.png" alt="客服小九 - 首页">
+                                        <img class="ss-slide" src="imgs/screens/kf-2.png" alt="客服小九 - 对话中">
+                                        <img class="ss-slide" src="imgs/screens/kf-3.png" alt="客服小九 - 关于">
                                     </div>
-                                    <div class="kf-escalate" id="kf-escalate">
-                                        <span>👤 需要人工？工作时间 09:00–22:00</span>
-                                        <button class="kf-esc-close" onclick="document.getElementById('kf-escalate').style.display='none'">✕</button>
+                                    <div class="ss-caption-bar">
+                                        <span class="ss-cap-text" data-captions="首页建议,AI 对话,模型信息">首页建议</span>
                                     </div>
-                                    <div class="kf-chat" id="kf-chat">
-                                        <div class="kf-msg kf-bot">你好！我是客服小九 🎧<br>可以询问商品信息、活动优惠、<br>订单状态或售后政策。</div>
-                                        <div class="kf-suggest-label">你可以问我：</div>
-                                        <div class="kf-suggest-list">
-                                            <button class="kf-suggest" data-q="VisionPro X1 和 NovaStar S5 哪款更值得买？" data-a="VisionPro X1 定位专业创作，搭载 M3 芯片+120Hz 高刷屏，适合重度用户；NovaStar S5 主打日常通勤，价格亲民 800 元。建议按预算和使用场景选择～">商品对比推荐</button>
-                                            <button class="kf-suggest" data-q="夏季焕新节活动有哪些优惠？" data-a="夏季焕新节全场 9 折优惠，NovaStar S5 直降 300 元，另有以旧换新补贴最高 800 元。活动截止本月底，手慢无！">查看活动优惠</button>
-                                            <button class="kf-suggest" data-q="如何申请七天无理由退货？" data-a="购买之日起 7 天内均可申请无理由退货，需保持商品未激活状态。进入「我的订单」→「申请退款」，系统 1-3 工作日内完成处理。">七天无理由退货</button>
-                                            <button class="kf-suggest" data-q="如何查询我的订单物流？" data-a="您可在「我的」→「我的订单」中查看实时物流信息。如订单超时未送达，系统将自动赔付 5 元补偿，无需申请。">查询订单物流</button>
+                                    <div class="ss-controls">
+                                        <button class="ss-arr ss-prev">‹</button>
+                                        <div class="ss-dots">
+                                            <button class="ss-dot ss-dot-on"></button>
+                                            <button class="ss-dot"></button>
+                                            <button class="ss-dot"></button>
                                         </div>
-                                    </div>
-                                    <div class="kf-chips" id="kf-chips">
-                                        <button class="kf-chip" data-q="80W 快充多久充满？" data-a="NovaStar S5 配备 80W 超级快充，从 0% 到 100% 约需 45 分钟，充至 50% 仅需 15 分钟，行业领先水平 ⚡">快充咨询</button>
-                                        <button class="kf-chip" data-q="申请投诉" data-a="已记录您的投诉，客服专员将在 2 小时内跟进处理。如需人工服务，可点击上方横幅联系专属客服。">投诉</button>
-                                        <button class="kf-chip" data-q="申请换货" data-a="换货申请已提交！请拍照上传商品问题，审核通过后安排上门取件，全程免费。">换货</button>
+                                        <button class="ss-arr ss-next">›</button>
                                     </div>
                                 </div>
                             </div>
