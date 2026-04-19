@@ -553,6 +553,149 @@ document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
 
 
 /* ============================================================
+   APP DETAIL MODAL
+   ============================================================ */
+(function initAppModal(){
+    const APP_DATA = [
+        {
+            emoji:'🎬', name:'月之案面', tag:'短视频 · AI创作',
+            desc:'面向内容团队的 AI 分镜工具。输入脚本即可生成可编辑分镜图卡，将内容生产从人力驱动升级为标准化 AI 输出。',
+            features:[
+                {icon:'✍️', title:'脚本转分镜', desc:'粘贴文案，AI 自动拆解镜头，输出可视化分镜'},
+                {icon:'🎞️', title:'视频风格模板', desc:'竖版/横版/混剪多种风格，一键切换'},
+                {icon:'📋', title:'历史项目管理', desc:'所有分镜项目归档，随时复用或二次编辑'},
+                {icon:'🚀', title:'批量生成', desc:'多镜头并行生成，大幅压缩制作周期'},
+            ],
+            type:'gallery',
+            screens:[
+                {src:'imgs/screens/yz-1.png', cap:'创意输入'},
+                {src:'imgs/screens/yz-2.png', cap:'视频类型'},
+                {src:'imgs/screens/yz-3.png', cap:'历史项目'},
+                {src:'imgs/screens/yz-4.jpg', cap:'生成完成'},
+            ]
+        },
+        {
+            emoji:'🐱', name:'情绪岛·伙伴', tag:'情感陪伴 · AI宠物',
+            desc:'选择你的虚拟宠物，通过日常对话喂养它。AI 识别你的情绪状态，用专属食物与互动陪你度过每一天。',
+            features:[
+                {icon:'🐾', title:'虚拟宠物养成', desc:'猫猫或狗狗，会因互动频率成长或生气'},
+                {icon:'💬', title:'情绪识别对话', desc:'DeepSeek-V3 驱动，理解你的情绪并回应'},
+                {icon:'🍖', title:'食物库存系统', desc:'聊天赚取食物，定时喂宠物保持亲密度'},
+                {icon:'📊', title:'情绪趋势追踪', desc:'记录每日情绪，可视化你的心理波动'},
+            ],
+            type:'iframe', src:'app-qydao.html'
+        },
+        {
+            emoji:'💡', name:'灵感瞬间', tag:'效率工具 · 创意管理',
+            desc:'专为创意人设计的灵感捕捉工具。语音或文字快速记录，AI 自动整理标签，让每个一闪而过的想法都有迹可循。',
+            features:[
+                {icon:'⚡', title:'快速记录', desc:'进入即可输入，零操作成本，不打断灵感'},
+                {icon:'🏷️', title:'AI 自动打标签', desc:'自动归类灵感，分类浏览从不迷路'},
+                {icon:'🗂️', title:'卡片式浏览', desc:'瀑布流排列，一眼扫过所有灵感碎片'},
+                {icon:'🔍', title:'全文搜索', desc:'关键词秒查，让旧灵感随时被重新发现'},
+            ],
+            type:'gallery',
+            screens:[
+                {src:'imgs/screens/lg-1.png', cap:'主页'},
+                {src:'imgs/screens/lg-2.png', cap:'卡片浏览'},
+                {src:'imgs/screens/lg-3.png', cap:'记录灵感'},
+                {src:'imgs/screens/lg-4.png', cap:'历史记录'},
+            ]
+        },
+        {
+            emoji:'✦', name:'Vesper · 死得起', tag:'人生规划 · 消费理性',
+            desc:'用数据丈量人生重要时刻的真实成本。一份冷静又温柔的理财清单，帮你在消费主义以外找到属于自己的价格锚点。',
+            features:[
+                {icon:'🧮', title:'寿命倒计时', desc:'基于年龄与习惯，测算你的剩余时间'},
+                {icon:'💸', title:'消费承受力评估', desc:'用真实财务数据量化你能"死得起"什么'},
+                {icon:'📝', title:'遗愿清单构建', desc:'列出遗憾，AI 反推优先级与行动计划'},
+                {icon:'🤖', title:'AI 人生判官', desc:'综合数据给出犀利又温柔的人生建议'},
+            ],
+            type:'iframe', src:'app-vesper.html'
+        },
+        {
+            emoji:'🎧', name:'客服小九', tag:'企业效率 · AI 电商客服',
+            desc:'基于 DeepSeek-V3 的电商客服助手。支持商品咨询、订单查询、售后处理，并能识别图片商品。智能分级，将人力解决率提升至 65%。',
+            features:[
+                {icon:'🛍️', title:'商品智能咨询', desc:'自动回答规格、价格、库存等高频问题'},
+                {icon:'📦', title:'订单状态查询', desc:'接入物流接口，实时播报包裹动态'},
+                {icon:'🔄', title:'售后流程自动化', desc:'退换货规则自动判断，减少人工介入'},
+                {icon:'📷', title:'图片识别', desc:'上传商品图片即可识别并推荐相似款'},
+            ],
+            type:'gallery',
+            screens:[
+                {src:'imgs/screens/kf-1.png', cap:'首页'},
+                {src:'imgs/screens/kf-2.png', cap:'对话中'},
+                {src:'imgs/screens/kf-3.png', cap:'关于页'},
+            ]
+        },
+    ];
+
+    const overlay = document.getElementById('adm');
+    const closeBtn = document.getElementById('adm-close');
+    const emojiEl  = document.getElementById('adm-emoji');
+    const nameEl   = document.getElementById('adm-name');
+    const tagEl    = document.getElementById('adm-tag');
+    const descEl   = document.getElementById('adm-desc');
+    const featsEl  = document.getElementById('adm-feats');
+    const rightEl  = document.getElementById('adm-right');
+
+    function openModal(idx){
+        const d = APP_DATA[idx];
+        emojiEl.textContent = d.emoji;
+        nameEl.textContent  = d.name;
+        tagEl.textContent   = d.tag;
+        descEl.textContent  = d.desc;
+
+        featsEl.innerHTML = d.features.map(f=>`
+            <div class="adm-feat">
+                <span class="adm-feat-icon">${f.icon}</span>
+                <div class="adm-feat-text">
+                    <div class="adm-feat-title">${f.title}</div>
+                    <div class="adm-feat-desc">${f.desc}</div>
+                </div>
+            </div>`).join('');
+
+        if(d.type === 'gallery'){
+            rightEl.innerHTML = `
+                <div class="adm-gallery">
+                    ${d.screens.map(s=>`
+                    <div style="display:flex;flex-direction:column;align-items:center">
+                        <div class="adm-gframe"><img src="${s.src}" alt="${s.cap}"></div>
+                        <div class="adm-gcap">${s.cap}</div>
+                    </div>`).join('')}
+                </div>
+                <div class="adm-gallery-hint">← 左右滑动查看全部截图 →</div>`;
+        } else {
+            rightEl.innerHTML = `
+                <div class="adm-iframe-wrap">
+                    <iframe src="${d.src}" title="${d.name}" loading="lazy"></iframe>
+                </div>
+                <div class="adm-iframe-label">↕ 可直接在此互动体验 ${d.name}</div>`;
+        }
+
+        overlay.classList.add('adm-open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(){
+        overlay.classList.remove('adm-open');
+        document.body.style.overflow = '';
+        // destroy iframe to stop audio/network
+        setTimeout(()=>{ rightEl.innerHTML = ''; }, 350);
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', e=>{ if(e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+    document.querySelectorAll('.app-item').forEach((item, idx)=>{
+        item.style.cursor = 'pointer';
+        item.addEventListener('click', ()=> openModal(idx));
+    });
+})();
+
+/* ============================================================
    SECTION NUM — subtle parallax
    ============================================================ */
 const tagNums=document.querySelectorAll('.tag-num');
