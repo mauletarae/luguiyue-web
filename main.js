@@ -208,9 +208,7 @@ document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
     dots.forEach(dot=>{
         dot.addEventListener('click',()=>{ goTo(+dot.dataset.target); resetTimer(); });
     });
-    appItems.forEach(item=>{
-        item.addEventListener('click',()=>{ goTo(+item.dataset.screen); resetTimer(); });
-    });
+    // app-item clicks are handled by the detail modal — no phone switch on click
 
     appItems[0]?.classList.add('active-ai');
     resetTimer();
@@ -657,6 +655,7 @@ document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
             </div>`).join('');
 
         if(d.type === 'gallery'){
+            rightEl.classList.remove('adm-iframe-mode');
             rightEl.innerHTML = `
                 <div class="adm-gallery">
                     ${d.screens.map(s=>`
@@ -667,11 +666,15 @@ document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
                 </div>
                 <div class="adm-gallery-hint">← 左右滑动查看全部截图 →</div>`;
         } else {
+            rightEl.classList.add('adm-iframe-mode');
             rightEl.innerHTML = `
-                <div class="adm-iframe-wrap">
-                    <iframe src="${d.src}" title="${d.name}" loading="lazy"></iframe>
+                <div class="adm-iframe-bar">
+                    <div class="adm-iframe-bar-dot"></div>
+                    <div class="adm-iframe-bar-dot"></div>
+                    <div class="adm-iframe-bar-dot"></div>
+                    <span style="margin-left:4px">可直接互动体验</span>
                 </div>
-                <div class="adm-iframe-label">↕ 可直接在此互动体验 ${d.name}</div>`;
+                <iframe class="adm-iframe-full" src="${d.src}" title="${d.name}" loading="lazy"></iframe>`;
         }
 
         overlay.classList.add('adm-open');
@@ -681,8 +684,7 @@ document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
     function closeModal(){
         overlay.classList.remove('adm-open');
         document.body.style.overflow = '';
-        // destroy iframe to stop audio/network
-        setTimeout(()=>{ rightEl.innerHTML = ''; }, 350);
+        setTimeout(()=>{ rightEl.innerHTML = ''; rightEl.classList.remove('adm-iframe-mode'); }, 350);
     }
 
     closeBtn.addEventListener('click', closeModal);
