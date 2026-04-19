@@ -633,6 +633,11 @@ body.ch #cursor{
 }
 .app-screen.active{opacity:1}
 .iphone-demo .iphone-screen{position:relative}
+.app-iframe{
+    width:100%;height:100%;
+    border:none;display:block;
+    border-radius:inherit;
+}
 
 /* Shared screen styles */
 .as-header{

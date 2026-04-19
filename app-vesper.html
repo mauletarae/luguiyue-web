@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vesper | 死得起</title>
+    <style>
+        :root { --g: #D4AF37; --d: #000; --r: #ff0000; } 
+        body { background: var(--d); color: var(--g); font-family: 'Times New Roman', 'STHeiti', serif; margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
+        
+        .stage { display: none; width: 90%; max-width: 550px; animation: fadeIn 0.6s ease; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        h1 { font-size: 2rem; letter-spacing: 8px; font-weight: 200; margin-bottom: 2rem; text-shadow: 0 0 10px rgba(212,175,55,0.3); }
+        .q { font-size: 1rem; color: #555; margin-bottom: 1.5rem; letter-spacing: 3px; text-transform: uppercase; }
+        
+        /* 标签云系统 */
+        .tag-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 15px; max-height: 180px; overflow-y: auto; padding: 10px; }
+        .tag { border: 1px solid #1a1a1a; padding: 6px 12px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; color: #444; }
+        .tag.selected { border-color: var(--g); color: var(--g); background: rgba(212,175,55,0.05); }
+
+        .custom-area { margin-top: 20px; padding-top: 15px; border-top: 1px solid #111; }
+        #custom-val { border: none; border-bottom: 1px solid #222; width: 160px; font-size: 0.85rem; text-align: center; color: var(--g); outline: none; background: none; }
+        .add-trigger { font-size: 0.65rem; color: #444; cursor: pointer; margin-top: 8px; letter-spacing: 1px; }
+
+        input, textarea, select { background: none; border: none; border-bottom: 1px solid #222; color: var(--g); font-size: 1.2rem; width: 100%; text-align: center; padding: 10px; outline: none; margin-top: 15px; }
+        select { cursor: pointer; }
+        
+        /* 最终结果排版 */
+        #t { font-size: 4.5rem; font-family: monospace; margin-bottom: 25px; transition: color 0.4s; letter-spacing: -3px; font-weight: bold; }
+        #res { line-height: 2.2; font-size: 1.2rem; color: #888; min-height: 200px; padding: 0 20px; transition: 0.3s; }
+
+        /* 🔴 核心高亮：加粗、血红、倾斜、震动 */
+        .highlight {
+            color: var(--r);
+            font-weight: 900;
+            font-size: 1.5rem;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+            display: inline-block;
+            transform: skewX(-10deg); 
+            margin: 0 4px;
+        }
+
+        /* 震颤效果 */
+        .shock { animation: shake 0.1s linear infinite; color: #eee !important; }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px); }
+            25% { transform: translate(-1px, -1px); }
+            50% { transform: translate(1px, -1px); }
+            75% { transform: translate(-1px, 1px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .epitaph { margin-top: 45px; color: #444; font-size: 0.85rem; letter-spacing: 2px; border-top: 1px solid #111; padding-top: 25px; }
+
+        button { background: none; border: 1px solid var(--g); color: var(--g); padding: 12px 60px; margin-top: 40px; cursor: pointer; letter-spacing: 5px; font-size: 0.75rem; transition: 0.4s; }
+        button:hover { background: var(--g); color: #000; box-shadow: 0 0 20px rgba(212,175,55,0.3); }
+
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 100; align-items: center; justify-content: center; }
+        .m-box { border: 1px solid var(--g); padding: 40px; background: #050505; max-width: 320px; }
+        .m-text { font-size: 1.1rem; line-height: 1.6; }
+        .m-close { font-size: 0.7rem; border: 1px solid var(--g); padding: 8px 20px; cursor: pointer; display: inline-block; margin-top: 30px; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <div id="modal"><div class="m-box"><div id="m-text" class="m-text"></div><div class="m-close" onclick="closeM()">[ 我认罪 ]</div></div></div>
+
+    <div id="s0" class="stage active"><h1>ADAM PARBERINGH</h1><div class="q">WELCOME TO VESPER</div><button onclick="go(1)">签订契约</button></div>
+
+    <div id="s1" class="stage"><div class="q">虚度了多少载？</div><input id="age" type="number" placeholder="AGE"><button onclick="go(2)">下一步</button></div>
+
+    <div id="s2" class="stage">
+        <div class="q">如何挥霍你的零件？</div>
+        <div class="tag-container" id="tag-box">
+            <div class="tag" onclick="toggleTag(this)">熬夜</div>
+            <div class="tag" onclick="toggleTag(this)">工位久坐</div>
+            <div class="tag" onclick="toggleTag(this)">咖啡续命</div>
+            <div class="tag" onclick="toggleTag(this)">情绪内耗</div>
+        </div>
+        <div class="custom-area">
+            <input id="custom-val" type="text" placeholder="还有什么恶习？" onkeydown="if(event.keyCode==13) addCustomTag()">
+            <div class="add-trigger" onclick="addCustomTag()">+ 增加这项罪孽</div>
+        </div>
+        <button onclick="go(3)">下一步</button>
+    </div>
+
+    <div id="s3" class="stage"><div class="q">临死前最不甘心什么？</div><textarea id="reg" rows="2" placeholder="还没去过大理..."></textarea><button onclick="go(4)">下一步</button></div>
+
+    <div id="s4" class="stage">
+        <div class="q">此刻你的求生姿态？</div>
+        <select id="will">
+            <option value="带我走吧，太累了">带我走吧，太累了</option>
+            <option value="我还能再抢救一下">我还能再抢救一下</option>
+            <option value="还没活够，再给点时间">还没活够，再给点时间</option>
+            <option value="我的腰还能再熬两个PPT">我的腰还能再熬两个PPT</option>
+        </select>
+        <button onclick="run()">最终审判</button>
+    </div>
+
+    <div id="s5" class="stage"><div id="t">86400.000</div><div id="res">正在剥离虚伪...</div></div>
+
+    <script>
+        let cur = 0, time = 86400, selectedTags = [];
+        
+        // 💀 扩充版毒舌语料库
+        const insults = [
+            "几岁了？别让死神亲自去翻你的出生证。",
+            "怎么，连敲击键盘的力气都在昨晚的加班里耗光了？",
+            "空白？你的脑干也像你的输入框一样空吗？",
+            "交代你的罪孽，别在这装清白无辜。",
+            "死神面前耍小聪明，以为不填就能瞒天过海？",
+            "别磨蹭了，火葬场的炉子可是按分钟计费的。",
+            "连直面自己烂透了的人生的勇气都没有？填上。",
+            "你的沉默连一具合格的尸体都不如。",
+            "想空手套白狼？判官不收你这种废纸。",
+            "写下你的遗憾，别像个木头人一样等死。",
+            "你那点微不足道的自尊心，不值得在这里浪费时间。",
+            "再不填，我就直接按最高折损率把你打包带走。"
+        ];
+
+        let lastInsultIndex = -1; // 用于记录上一次骂了哪句，防止连续重复
+
+        function toggleTag(el) {
+            el.classList.toggle('selected');
+            const tag = el.innerText;
+            if(selectedTags.includes(tag)) selectedTags = selectedTags.filter(t => t !== tag);
+            else selectedTags.push(tag);
+        }
+
+        function addCustomTag() {
+            const input = document.getElementById('custom-val');
+            const val = input.value.trim();
+            if(val) {
+                const tagBox = document.getElementById('tag-box');
+                const newTag = document.createElement('div');
+                newTag.className = 'tag selected';
+                newTag.innerText = val;
+                newTag.onclick = function() { toggleTag(this); };
+                tagBox.appendChild(newTag);
+                selectedTags.push(val);
+                input.value = '';
+                tagBox.scrollTop = tagBox.scrollHeight;
+            }
+        }
+
+        function showM() {
+            // 🧠 防连续重复算法
+            let newIndex = Math.floor(Math.random() * insults.length);
+            while (newIndex === lastInsultIndex) {
+                newIndex = Math.floor(Math.random() * insults.length);
+            }
+            lastInsultIndex = newIndex; // 记录这次的索引
+            
+            document.getElementById('m-text').innerText = insults[newIndex];
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeM() { document.getElementById('modal').style.display = 'none'; }
+
+        function go(n) {
+            if (n === 2 && !document.getElementById('age').value) return showM();
+            if (n === 3 && selectedTags.length === 0) return showM();
+            if (n === 4 && !document.getElementById('reg').value) return showM();
+            document.getElementById(`s${cur}`).classList.remove('active');
+            document.getElementById(`s${n}`).classList.add('active');
+            cur = n;
+        }
+
+        async function run() {
+            go(5);
+            const t = document.getElementById('t'), resBox = document.getElementById('res');
+            const timerInterval = setInterval(() => { time -= 0.008; t.innerText = time.toFixed(3); }, 11);
+
+            try {
+                const API_KEY = 'app-7JVqXfvmfhQPtviaeHTCWjD6'; // 🚀 别忘了填入你真实的 Key
+                const r = await fetch('https://api.dify.ai/v1/workflows/run', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${API_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        inputs: { 
+                            age: document.getElementById('age').value, 
+                            lifestyle_tags: selectedTags.join(', '), 
+                            deep_regret: document.getElementById('reg').value, 
+                            will_to_live: document.getElementById('will').value 
+                        },
+                        response_mode: "blocking", user: "adam_p"
+                    })
+                });
+
+                const d = await r.json();
+                const outputText = d.data.outputs.text || d.data.outputs.answer;
+                const res = JSON.parse(outputText);
+
+                resBox.classList.add('shock');
+                time -= (parseInt(res.seconds_lost) || 5000);
+                t.style.color = '#ff0000';
+
+                resBox.innerHTML = res.judgment;
+                
+                setTimeout(() => {
+                    resBox.classList.remove('shock');
+                    resBox.innerHTML += `<div class="epitaph">[ 墓志铭 ]<br>${res.epitaph}</div>`;
+                }, 3000);
+
+            } catch (e) { 
+                resBox.innerText = "判官睡了。请确认已使用 Live Server 且 Prompt 输出为 JSON 格式。"; 
+            }
+        }
+    </script>
+</body>
+</html>

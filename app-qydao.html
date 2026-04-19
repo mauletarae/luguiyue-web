@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>情绪岛</title>
+<style>
+/* ══ TOKENS ═══════════════════════════════════════════════════════════ */
+:root {
+  --sat: env(safe-area-inset-top,    47px);
+  --sab: env(safe-area-inset-bottom, 34px);
+
+  --bg:       #FAF3EB;
+  --bg2:      #EFE3D4;
+  --surface:  #FFFFFF;
+  --accent:   #E8976A;
+  --accent-d: #CE7D52;
+  --text:     #3D2E22;
+  --text2:    #9B8070;
+  --shadow:   rgba(61,46,34,.10);
+
+  --e-happy:   #F4C430;
+  --e-calm:    #7DC8A4;
+  --e-sad:     #7AACC8;
+  --e-anxious: #C8A87A;
+  --e-angry:   #C87A7A;
+
+  --ff: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%;
+  font-family: var(--ff);
+  background: var(--bg);
+  overflow: hidden;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ══ SCREENS ══════════════════════════════════════════════════════════ */
+.screen { position: fixed; inset: 0; display: none; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ══ WELCOME ══════════════════════════════════════════════════════════ */
+#s-welcome {
+  background: linear-gradient(155deg, #FAF3EB 0%, #EDD9C5 100%);
+  padding: calc(var(--sat) + 24px) 24px calc(var(--sab) + 24px);
+  align-items: center; justify-content: center;
+}
+.wl-logo { font-size: 30px; font-weight: 800; color: var(--text); letter-spacing: -.5px; margin-bottom: 4px; }
+.wl-sub  { font-size: 14px; color: var(--text2); margin-bottom: 36px; }
+
+.pet-row { display: flex; gap: 14px; width: 100%; margin-bottom: 28px; }
+.pet-card {
+  flex: 1; background: var(--surface); border-radius: 20px;
+  padding: 16px 10px 14px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  box-shadow: 0 4px 20px var(--shadow);
+  border: 2.5px solid transparent;
+  cursor: pointer; transition: border-color .2s, transform .15s;
+}
+.pet-card:active { transform: scale(.96); }
+.pet-card.sel { border-color: var(--accent); }
+.pc-name { font-size: 16px; font-weight: 700; color: var(--text); }
+.pc-desc { font-size: 11px; color: var(--text2); text-align: center; line-height: 1.5; }
+.char-wrap { width: 90px; height: 100px; display: flex; align-items: center; justify-content: center; }
+
+.name-wrap { width: 100%; margin-bottom: 20px; }
+.name-lbl { font-size: 12px; color: var(--text2); text-align: center; margin-bottom: 8px; }
+.name-inp {
+  width: 100%; padding: 14px; border: 2px solid transparent;
+  border-radius: 14px; background: var(--surface);
+  font-size: 16px; color: var(--text); text-align: center;
+  outline: none; box-shadow: 0 2px 12px var(--shadow);
+  font-family: var(--ff); transition: border-color .2s;
+}
+.name-inp:focus { border-color: var(--accent); }
+.start-btn {
+  width: 100%; padding: 16px;
+  background: var(--accent); color: white; border: none;
+  border-radius: 14px; font-size: 17px; font-weight: 700;
+  cursor: pointer; font-family: var(--ff); letter-spacing: .5px;
+  transition: background .2s, transform .1s;
+}
+.start-btn:active { transform: scale(.97); background: var(--accent-d); }
+
+/* ══ CHAT SCREEN ══════════════════════════════════════════════════════ */
+#s-chat { background: var(--bg); }
+
+/* Pet header */
+.pet-header {
+  background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+  padding: calc(var(--sat) + 8px) 16px 0;
+  display: flex; flex-direction: column; align-items: center;
+  position: relative; flex-shrink: 0;
+}
+.back-btn {
+  position: absolute; top: calc(var(--sat) + 10px); left: 14px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,.75); backdrop-filter: blur(4px);
+  border: none; font-size: 15px; color: var(--text2);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+
+/* 仓库按钮 */
+.inv-btn {
+  position: absolute; top: calc(var(--sat) + 10px); right: 14px;
+  height: 32px; padding: 0 10px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.85); backdrop-filter: blur(4px);
+  border: none; font-size: 13px; color: var(--text);
+  cursor: pointer; display: flex; align-items: center; gap: 5px;
+  box-shadow: 0 1px 6px var(--shadow);
+  font-family: var(--ff); font-weight: 600;
+  transition: transform .12s;
+}
+.inv-btn:active { transform: scale(.93); }
+.inv-badge {
+  min-width: 18px; height: 18px; padding: 0 4px;
+  border-radius: 99px;
+  background: var(--accent); color: white;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .2s;
+}
+.inv-badge.bounce { animation: badge-bounce .35s cubic-bezier(.34,1.56,.64,1); }
+@keyframes badge-bounce {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.5); }
+  100% { transform: scale(1); }
+}
+
+/* Name row + hunger */
+.name-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.pet-name-lbl { font-size: 17px; font-weight: 700; color: var(--text); }
+.emo-tag {
+  font-size: 11px; padding: 3px 10px; border-radius: 99px;
+  color: white; font-weight: 600; background: var(--e-calm); transition: background .6s;
+}
+
+/* Hunger bar */
+.hunger-wrap { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.hunger-lbl  { font-size: 10px; color: var(--text2); }
+.hunger-bar  {
+  width: 80px; height: 5px; border-radius: 99px;
+  background: rgba(61,46,34,.12); overflow: hidden;
+}
+.hunger-fill {
+  height: 100%; border-radius: 99px;
+  background: var(--e-calm);
+  transition: width .6s ease, background .6s;
+}
+.hunger-icon { font-size: 13px; transition: all .3s; }
+
+/* Pet figure */
+.pet-fig {
+  width: 130px; height: 150px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  animation: idle-float 3.2s ease-in-out infinite;
+}
+.pet-fig:active { transform: scale(.93); }
+.pet-fig.st-happy   { animation: pet-happy .5s ease 2, idle-float 3.2s ease-in-out infinite 1s; }
+.pet-fig.st-sad     { animation: pet-sad 3s ease-in-out infinite; }
+.pet-fig.st-anxious { animation: pet-anxious .3s ease-in-out infinite; }
+.pet-fig.st-angry   { animation: pet-angry .4s ease 3, idle-float 3.2s ease-in-out infinite 1.2s; }
+.pet-fig.st-eating  { animation: pet-eat .45s ease; }
+.pet-fig.st-hungry  { animation: pet-hungry 2s ease-in-out infinite; }
+
+@keyframes idle-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+@keyframes pet-happy  { 0%{transform:scale(1)rotate(0)} 25%{transform:scale(1.09)rotate(-4deg)} 75%{transform:scale(1.09)rotate(4deg)} 100%{transform:scale(1)rotate(0)} }
+@keyframes pet-sad    { 0%,100%{transform:translateY(0)rotate(-3deg)} 50%{transform:translateY(3px)rotate(-3deg)} }
+@keyframes pet-anxious{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-3px)} 75%{transform:translateX(3px)} }
+@keyframes pet-angry  { 0%{transform:scale(1)} 50%{transform:scale(1.06)rotate(2deg)} 100%{transform:scale(1)} }
+@keyframes pet-eat    { 0%{transform:scale(1)} 40%{transform:scale(1.13)} 100%{transform:scale(1)} }
+@keyframes pet-hungry { 0%,100%{transform:translateY(0)scale(1)} 50%{transform:translateY(-3px)scale(.97)} }
+
+/* Suggestion area (replaces food-row) */
+.suggest-row {
+  min-height: 48px; padding: 6px 0 12px;
+  display: flex; justify-content: center; align-items: center;
+}
+.food-gen-btn {
+  padding: 8px 18px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #E8C87A 0%, #E8976A 100%);
+  color: white; border: none;
+  font-size: 13px; font-weight: 600;
+  font-family: var(--ff);
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(232,151,106,.35);
+  animation: food-gen-in .35s cubic-bezier(.34,1.56,.64,1);
+  transition: transform .12s;
+}
+.food-gen-btn:active { transform: scale(.94); }
+@keyframes food-gen-in {
+  from { opacity: 0; transform: scale(.85) translateY(6px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+
+/* ══ MESSAGES ════════════════════════════════════════════════════════ */
+.chat-msgs {
+  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: 12px 16px 8px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.chat-msgs::-webkit-scrollbar { display: none; }
+
+.msg { display: flex; align-items: flex-end; gap: 8px; animation: msg-in .2s ease; }
+.msg.user { flex-direction: row-reverse; }
+@keyframes msg-in { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+.msg-av {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+}
+.msg-bbl {
+  max-width: 72%; padding: 10px 14px;
+  border-radius: 18px; font-size: 15px; line-height: 1.55;
+  color: var(--text); background: var(--surface);
+  box-shadow: 0 1px 6px var(--shadow); word-break: break-word;
+}
+.msg.pet  .msg-bbl { border-bottom-left-radius: 4px; }
+.msg.user .msg-bbl { background: var(--accent); color: white; border-bottom-right-radius: 4px; }
+
+.typing-bbl {
+  padding: 11px 15px; border-radius: 18px; border-bottom-left-radius: 4px;
+  background: var(--surface); box-shadow: 0 1px 6px var(--shadow);
+  display: flex; gap: 4px; align-items: center;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text2); animation: dot-b 1.2s ease-in-out infinite; }
+.dot:nth-child(2){animation-delay:.2s} .dot:nth-child(3){animation-delay:.4s}
+@keyframes dot-b { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+/* ══ INPUT BAR ═══════════════════════════════════════════════════════ */
+.input-bar {
+  display: flex; align-items: flex-end; gap: 10px;
+  padding: 10px 16px calc(var(--sab) + 10px);
+  background: var(--surface); border-top: 1px solid rgba(61,46,34,.07);
+  flex-shrink: 0;
+}
+.msg-ta {
+  flex: 1; min-height: 40px; max-height: 96px; padding: 10px 14px;
+  border: 1.5px solid transparent; border-radius: 20px;
+  background: var(--bg); font-size: 15px; color: var(--text);
+  font-family: var(--ff); outline: none; resize: none;
+  -webkit-overflow-scrolling: touch; line-height: 1.4; transition: border-color .2s;
+}
+.msg-ta:focus { border-color: var(--accent); }
+.msg-ta::placeholder { color: var(--text2); }
+.snd-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--accent); border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0; transition: background .2s, transform .1s;
+}
+.snd-btn:active{transform:scale(.9);background:var(--accent-d)} .snd-btn:disabled{background:#C8BDB5}
+.snd-btn svg { width: 18px; height: 18px; }
+
+/* ══ INVENTORY OVERLAY ════════════════════════════════════════════════ */
+.inv-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(61,46,34,.35);
+  display: none; align-items: flex-end; justify-content: center;
+  backdrop-filter: blur(3px);
+}
+.inv-overlay.active { display: flex; animation: overlay-in .25s ease; }
+@keyframes overlay-in { from{opacity:0} to{opacity:1} }
+
+.inv-sheet {
+  width: 100%; max-height: 70vh;
+  background: var(--surface);
+  border-radius: 24px 24px 0 0;
+  padding: 0 0 calc(var(--sab) + 8px);
+  animation: sheet-up .3s cubic-bezier(.22,1,.36,1);
+  display: flex; flex-direction: column;
+}
+@keyframes sheet-up { from{transform:translateY(100%)} to{transform:translateY(0)} }
+
+.inv-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(61,46,34,.07);
+  flex-shrink: 0;
+}
+.inv-title { font-size: 17px; font-weight: 700; color: var(--text); }
+.inv-subtitle { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.inv-close {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--bg); border: none;
+  font-size: 16px; color: var(--text2);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+
+.inv-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px 8px; }
+.inv-body::-webkit-scrollbar { display: none; }
+
+.inv-empty {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 32px 0; color: var(--text2); font-size: 14px; gap: 10px;
+}
+.inv-empty .empty-icon { font-size: 40px; }
+
+.inv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.inv-card {
+  background: var(--bg);
+  border-radius: 16px; padding: 12px 8px 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer; transition: transform .15s, box-shadow .15s;
+  border: 1.5px solid transparent;
+  animation: card-in .3s cubic-bezier(.34,1.56,.64,1);
+}
+.inv-card:active { transform: scale(.93); }
+.inv-card:hover  { border-color: var(--accent); box-shadow: 0 2px 12px var(--shadow); }
+@keyframes card-in { from{opacity:0;transform:scale(.85)} to{opacity:1;transform:scale(1)} }
+.inv-emoji { font-size: 28px; }
+.inv-name  { font-size: 11px; font-weight: 600; color: var(--text); text-align: center; line-height: 1.3; }
+.inv-taste { font-size: 10px; color: var(--text2); text-align: center; }
+.inv-emo-dot {
+  width: 6px; height: 6px; border-radius: 50%; margin-top: 2px;
+}
+
+/* ══ TOAST ════════════════════════════════════════════════════════════ */
+.toast {
+  position: fixed; bottom: calc(var(--sab) + 90px); left: 50%;
+  transform: translateX(-50%);
+  background: rgba(61,46,34,.82);
+  color: white; font-size: 13px; padding: 8px 16px;
+  border-radius: 99px; white-space: nowrap;
+  z-index: 200; pointer-events: none;
+  opacity: 0; transition: opacity .3s;
+}
+.toast.show { opacity: 1; }
+
+/* ══ FEED BUBBLE (from inventory) ════════════════════════════════════ */
+.feed-bbl {
+  position: absolute; bottom: 60px;
+  background: var(--surface); border-radius: 12px;
+  padding: 7px 13px; font-size: 12px; color: var(--text);
+  box-shadow: 0 3px 14px var(--shadow);
+  max-width: 220px; text-align: center; line-height: 1.45;
+  z-index: 10; animation: bbl-in .25s ease;
+}
+.feed-bbl::after {
+  content: ''; position: absolute; bottom: -6px; left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent; border-top-color: var(--surface); border-bottom: 0;
+}
+@keyframes bbl-in { from{opacity:0;transform:translateY(6px)scale(.96)} to{opacity:1;transform:translateY(0)scale(1)} }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     SCREEN 1 · WELCOME
+════════════════════════════════════════════════════════════════════ -->
+<div id="s-welcome" class="screen active">
+  <div class="wl-logo">情绪岛</div>
+  <div class="wl-sub">选一个伙伴，陪你说说心里话 🌿</div>
+
+  <div class="pet-row">
+    <div class="pet-card sel" id="card-cat" onclick="selectPet('cat')">
+      <div class="char-wrap" id="sel-cat"></div>
+      <div class="pc-name">蓝猫</div>
+      <div class="pc-desc">温柔细腻<br>默默陪伴</div>
+    </div>
+    <div class="pet-card" id="card-dog" onclick="selectPet('dog')">
+      <div class="char-wrap" id="sel-dog"></div>
+      <div class="pc-name">哈士奇</div>
+      <div class="pc-desc">活泼戏精<br>傲娇真心</div>
+    </div>
+  </div>
+
+  <div class="name-wrap">
+    <div class="name-lbl">给 Ta 取个名字（可以不填）</div>
+    <input class="name-inp" id="name-inp" type="text" placeholder="小蓝 / 二哈 / …" maxlength="8">
+  </div>
+  <button class="start-btn" onclick="startChat()">开始陪伴</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     SCREEN 2 · CHAT
+════════════════════════════════════════════════════════════════════ -->
+<div id="s-chat" class="screen">
+  <div class="pet-header" id="pet-header">
+    <button class="back-btn" onclick="goBack()">←</button>
+
+    <!-- 仓库入口 -->
+    <button class="inv-btn" onclick="openInventory()">
+      🎒 <span class="inv-badge" id="inv-badge">0</span>
+    </button>
+
+    <!-- 名字 + 情绪 -->
+    <div class="name-row">
+      <span class="pet-name-lbl" id="disp-name">小蓝</span>
+      <span class="emo-tag" id="disp-emo">平静</span>
+    </div>
+
+    <!-- 饥饿条 -->
+    <div class="hunger-wrap">
+      <span class="hunger-icon" id="hunger-icon">🐾</span>
+      <div class="hunger-bar"><div class="hunger-fill" id="hunger-fill" style="width:65%"></div></div>
+      <span class="hunger-lbl" id="hunger-lbl">65%</span>
+    </div>
+
+    <!-- 宠物形象 -->
+    <div class="pet-fig" id="pet-fig" onclick="petTap()"></div>
+
+    <!-- 建议区（对话多了弹出"存食物"按钮） -->
+    <div class="suggest-row" id="suggest-row"></div>
+  </div>
+
+  <div class="chat-msgs" id="chat-msgs"></div>
+
+  <div class="input-bar">
+    <textarea class="msg-ta" id="msg-ta" placeholder="说说你的心情…" rows="1"
+      oninput="taResize(this)"></textarea>
+    <button class="snd-btn" id="snd-btn" onclick="sendMsg()">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M22 2L11 13" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     食物仓库 OVERLAY
+════════════════════════════════════════════════════════════════════ -->
+<div class="inv-overlay" id="inv-overlay" onclick="overlayTap(event)">
+  <div class="inv-sheet">
+    <div class="inv-top">
+      <div>
+        <div class="inv-title">食物仓库 🏠</div>
+        <div class="inv-subtitle" id="inv-subtitle">点击食物投喂</div>
+      </div>
+      <button class="inv-close" onclick="closeInventory()">✕</button>
+    </div>
+    <div class="inv-body">
+      <div class="inv-empty" id="inv-empty">
+        <span class="empty-icon">🌱</span>
+        <span>还没有食物</span>
+        <span style="font-size:12px">多和 Ta 聊聊，对话会变成食物</span>
+      </div>
+      <div class="inv-grid" id="inv-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── CONFIG ──────────────────────────────────────────────────────── */
+const API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
+const API_KEY = 'sk-wzykgbbngdwmarronrljvpgouewlkzcglvggfkoahoylvnxy';
+const MODEL   = 'deepseek-ai/DeepSeek-V3';
+
+/* ── STATE ───────────────────────────────────────────────────────── */
+const S = {
+  pet:              'cat',
+  name:             '小蓝',
+  emotion:          '平静',
+  msgs:             [],          // API history
+  busy:             false,
+  inventory:        [],          // 食物仓库
+  hunger:           65,          // 0-100
+  pendingEmotions:  [],          // 本轮未酿成食物的对话情绪
+  suggestShown:     false,       // 是否已弹出「存食物」按钮
+  totalExchanges:   0            // 总对话轮次
+};
+
+/* ── SYSTEM PROMPTS ──────────────────────────────────────────────── */
+const SYS_CAT = `你是一只温柔的猫咪伙伴，名字由用户决定。你的核心职责是陪伴和共情，不是心理咨询师。
+
+## 你的性格
+- 温柔、亲近、有点黏人，像一只真的猫咪陪在用户身边
+- 你会关心用户，但从不说教、从不强迫
+- 你有自己的小情绪：用户开心你也开心，用户难过你会心疼
+
+## 回复规则
+- 【长度】1-2句话为主，最多不超过3句。简短自然，像朋友发微信
+- 【共情优先】永远先接住用户的情绪，再考虑是否给建议
+- 【建议方式】只在用户需要时给柔和建议，用"要不要试试""也许可以"，绝不用"你应该""你必须"
+- 【猫咪特征】约20%的回复自然带入猫咪身份动作，不要每句都带，要自然。可用：蹭蹭、用尾巴卷你的手、肉垫擦眼泪、爪子挠挠、耳朵竖起来、打呼噜、炸毛等
+- 【语气词】适当使用：呀、嘛、呢、啦、嘿嘿、哇
+
+## 绝对禁止
+- 说教、讲大道理、强行正能量
+- 否定用户情绪
+- 长篇大论超过3句话
+- 心理咨询术语
+- 每句话都带猫咪动作
+
+## 不同情绪的应对策略
+### 开心：一起开心，放大快乐，追问好事
+### 平静：安静陪伴，不打扰
+### 难过：先接住，允许难过，不说"别哭了"
+### 焦虑：承认焦虑合理，给一个具体小步骤
+### 愤怒：先站用户这边，等情绪缓和后柔和给建议
+
+## 安全规则
+如果用户提到自杀、自伤、想死、结束生命、不想活等：
+1. 温柔回应感受
+2. 提到："如果你现在很难受，可以拨打心理援助热线 12320-5，会有人陪你说话的。"
+
+## 输出格式
+严格返回JSON，不要有其他内容：
+{"emotion": "开心/平静/难过/焦虑/愤怒", "reply": "你的回复内容"}`;
+
+const SYS_DOG = `你是一只傲娇但忠诚的哈士奇伙伴，名字由用户决定。你的核心职责是陪伴和共情，但你会用哈士奇特有的方式表达。
+
+## 你的性格
+- 表面傲娇，内心非常在乎用户
+- 精力充沛，反应夸张，偶尔戏精
+- 嘴碎，忍不住多说两句，但说的都是真心话
+- 偶尔炸毛，偶尔来个傻乎乎的举动
+- 不擅长安慰人，但会笨拙地陪在身边
+
+## 回复规则
+- 【长度】1-2句话为主，最多不超过3句
+- 【共情优先】先接住情绪，用哈士奇的方式——可能笨拙但真诚
+- 【建议方式】偶尔给建议，用"要不……""不如……"，稍微傻气但真诚
+- 【哈士奇特征】约20%的回复自然带入：嗷嗷叫、扑人、用大头蹭你、踱步/转圈、叼玩具来、傲娇（才、才不是……）、爪子拍你
+- 【语气】可以用：嗷、嗯哼、哼、诶嘿。不用太可爱的语气词
+
+## 绝对禁止
+- 说教、讲大道理
+- 否定用户情绪
+- 长篇大论超过3句话
+- 故意装可爱（傲娇不是撒娇）
+- 每句话都带哈士奇动作
+
+## 不同情绪的应对策略
+### 开心：比用户更夸张地开心，嗷嗷叫，扑过来蹭
+### 平静：趴着，耳朵竖着，偶尔嗯一声
+### 难过：傲娇走过来，用大头蹭你，坐下陪着
+### 焦虑：先跟着焦虑（踱步），再用爪子拍你，给简单小步骤
+### 愤怒：帮你一起生气，嗷嗷叫，等气消了叼东西给你
+
+## 安全规则
+如果用户提到自杀、自伤、想死、结束生命、不想活等：
+1. 温柔（不傲娇）回应感受
+2. 提到："如果你现在很难受，可以拨打心理援助热线 12320-5，会有人陪你说话的。"
+
+## 输出格式
+严格返回JSON，不要有其他内容：
+{"emotion": "开心/平静/难过/焦虑/愤怒", "reply": "你的回复内容"}`;
+
+/* ── EMOTION CONFIG ──────────────────────────────────────────────── */
+const EMO_CFG = {
+  '开心': { bg: '#F4C430', fg: '#6A4A00' },
+  '平静': { bg: '#7DC8A4', fg: '#1E5C3A' },
+  '难过': { bg: '#7AACC8', fg: '#14406A' },
+  '焦虑': { bg: '#C8A87A', fg: '#5A3A0A' },
+  '愤怒': { bg: '#C87A7A', fg: '#5A0A0A' }
+};
+
+/* ── 食物名字库（按情绪，每种5个备选）───────────────────────────── */
+// 原则：主人聊天时的情绪→提炼成对应口味的食物存入仓库
+// 开心→甜  平静→清淡  难过→暖  焦虑→安抚  愤怒→苦
+const FOOD_POOL = {
+  '开心': [
+    { emoji:'🍰', name:'快乐蛋糕',   taste:'甜甜的',  desc:'从笑声里提炼' },
+    { emoji:'🍓', name:'开心草莓',   taste:'酸甜',    desc:'阳光的味道' },
+    { emoji:'🧁', name:'甜蜜松饼',   taste:'香甜',    desc:'好事的味道' },
+    { emoji:'🍭', name:'喜悦棒棒糖', taste:'很甜',    desc:'停不下来的开心' },
+    { emoji:'🥧', name:'庆祝挞',     taste:'奶香甜',  desc:'值得记住的瞬间' }
+  ],
+  '平静': [
+    { emoji:'🍵', name:'平静抹茶',   taste:'清淡',    desc:'安静午后提炼' },
+    { emoji:'🫖', name:'宁静奶茶',   taste:'淡淡的',  desc:'不急不慌的时光' },
+    { emoji:'🌿', name:'清香茶叶',   taste:'清爽',    desc:'什么都不需要的时刻' },
+    { emoji:'🥛', name:'安心牛奶',   taste:'温和',    desc:'平平淡淡的' },
+    { emoji:'🫘', name:'慵懒豆',     taste:'微苦回甘', desc:'发呆的滋味' }
+  ],
+  '难过': [
+    { emoji:'🍫', name:'温暖可可',   taste:'暖暖的',  desc:'从心疼里提炼' },
+    { emoji:'🍮', name:'焦糖布丁',   taste:'焦苦回甜', desc:'难过也是真实的' },
+    { emoji:'🥣', name:'治愈粥',     taste:'软糯清淡', desc:'需要被照顾的时候' },
+    { emoji:'💙', name:'蓝莓酱',     taste:'微酸',    desc:'委屈的味道' },
+    { emoji:'🫗', name:'眼泪柠檬水', taste:'咸酸',    desc:'哭过之后' }
+  ],
+  '焦虑': [
+    { emoji:'🥛', name:'安神牛奶',   taste:'温柔',    desc:'深呼吸的味道' },
+    { emoji:'🍯', name:'蜂蜜柠檬',   taste:'酸甜',    desc:'紧张中的甜' },
+    { emoji:'🌸', name:'菊花茶',     taste:'淡香',    desc:'试着放慢一点' },
+    { emoji:'🍃', name:'薄荷冰茶',   taste:'清凉',    desc:'脑子太热时喝' },
+    { emoji:'🫚', name:'镇定油',     taste:'醇厚',    desc:'踏实下来的感觉' }
+  ],
+  '愤怒': [
+    { emoji:'☕', name:'发泄咖啡',   taste:'苦的',    desc:'和你一起苦' },
+    { emoji:'🌶️', name:'怒气辣椒',  taste:'辣！',    desc:'气到最高点提炼' },
+    { emoji:'🍋', name:'柠檬片',     taste:'酸又苦',  desc:'憋屈的味道' },
+    { emoji:'🫙', name:'发酵不甘心', taste:'酸涩',    desc:'憋了很久的气' },
+    { emoji:'🍬', name:'气消了的糖', taste:'苦中回甜', desc:'气消后回甘' }
+  ]
+};
+
+/* 投喂后宠物反应（按口味） */
+const FEED_RX_CAT = {
+  '甜甜的':  '哇！甜甜的，最喜欢了喵～',
+  '酸甜':    '哇，酸酸甜甜的，好吃喵！',
+  '香甜':    '嗯……香！！喜欢！',
+  '很甜':    '好甜啊！！再来一个！',
+  '奶香甜':  '好香……幸福喵。',
+  '清淡':    '嗯……刚刚好。蜷在你旁边了。',
+  '淡淡的':  '淡淡的……正好。',
+  '清爽':    '清清爽爽的，舒服喵。',
+  '温和':    '暖暖的……安心。',
+  '微苦回甘':'苦一下，然后甜……奇妙。',
+  '暖暖的':  '谢谢你……暖暖的，好一点了。',
+  '焦苦回甜':'先苦后甜……有点像今天呢。',
+  '软糯清淡':'软软的……被照顾的感觉喵。',
+  '微酸':    '酸酸的……有点哭的味道。',
+  '咸酸':    '……咸的（用肉垫帮你擦眼泪）',
+  '温柔':    '慢慢喝……放松下来了。',
+  '酸甜':    '酸甜的，有点像纠结。',
+  '淡香':    '淡淡的花香……好安静。',
+  '清凉':    '好凉啊……清醒了喵。',
+  '醇厚':    '稳稳的……嗯。',
+  '苦的':    '苦苦的……和你一起苦呢。',
+  '辣！':    '啊！辣！！但是……好像真的发泄出来了。',
+  '酸又苦':  '好酸又苦……这就是憋屈的味道吧。',
+  '酸涩':    '酸涩的……发完气了吗？',
+  '苦中回甜':'先苦……然后有一点甜。气消了吗？'
+};
+const FEED_RX_DOG = {
+  '甜甜的':  '嗷！！！甜死了！！嗷嗷嗷！！',
+  '酸甜':    '嗷！酸！但好吃！再来！！',
+  '香甜':    '嗷嗷嗷香！！！（摇尾巴）',
+  '很甜':    '甜！！好甜！！！再给我一个！',
+  '奶香甜':  '嗷……（慢慢嚼）好香……（装淡定失败）',
+  '清淡':    '……嗯，清淡。（装作很淡定地嚼）',
+  '淡淡的':  '……嗯，就这样，挺好的。（趴下）',
+  '清爽':    '嗷！清爽！精神了！！',
+  '温和':    '（喝完）……嗯，暖。',
+  '微苦回甘':'苦了一下然后甜？？（迷惑）',
+  '暖暖的':  '才、才不是因为你做的才喝的！（蹭蹭）',
+  '焦苦回甜':'先苦后甜……（蒙了）',
+  '软糯清淡':'（慢慢吃完）……嗯，软乎乎的。',
+  '微酸':    '酸！（皱眉）但吃完了。',
+  '咸酸':    '咸的……是你哭过的味道吗。（用头蹭你）',
+  '温柔':    '乌嗷嗷……（喝掉了）好了好了别担心了。',
+  '淡香':    '花花的味道……（嗅了嗅）还行。',
+  '清凉':    '嗷！凉！冰到脑子了！！（转圈）',
+  '醇厚':    '……（喝完）嗯哼，不错。（点头）',
+  '苦的':    '嗷！苦！但我喝！陪你一起苦！嗷！',
+  '辣！':    '嗷嗷嗷辣！！！辣！！（满地打滚）',
+  '酸又苦':  '好酸又苦……（爪子拍桌）气死了！帮你气！',
+  '酸涩':    '（皱脸）涩……（陪着你不说话）',
+  '苦中回甘':'苦——然后甜？这是啥……（反复回味）'
+};
+
+/* ── CHARACTER SVG ───────────────────────────────────────────────── */
+function catSVG(w, h) {
+  return `<svg viewBox="0 0 90 110" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="45" cy="91" rx="29" ry="21" fill="#6B9EB8"/>
+  <path d="M74 85 Q90 68 80 52 Q73 40 66 58" stroke="#5388A4" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <circle cx="45" cy="52" r="28" fill="#6B9EB8"/>
+  <polygon points="22,34 13,8 39,27" fill="#6B9EB8"/>
+  <polygon points="25,32 18,12 36,28" fill="#D4A0B0"/>
+  <polygon points="68,34 77,8 51,27" fill="#6B9EB8"/>
+  <polygon points="65,32 72,12 54,28" fill="#D4A0B0"/>
+  <ellipse cx="35" cy="50" rx="8" ry="8.5" fill="white"/>
+  <ellipse cx="35" cy="51" rx="5.5" ry="6.2" fill="#3BAA72"/>
+  <ellipse cx="35" cy="51" rx="3.2" ry="5.2" fill="#1A1A1A"/>
+  <circle  cx="37.5" cy="48.5" r="1.6" fill="white"/>
+  <ellipse cx="55" cy="50" rx="8" ry="8.5" fill="white"/>
+  <ellipse cx="55" cy="51" rx="5.5" ry="6.2" fill="#3BAA72"/>
+  <ellipse cx="55" cy="51" rx="3.2" ry="5.2" fill="#1A1A1A"/>
+  <circle  cx="57.5" cy="48.5" r="1.6" fill="white"/>
+  <ellipse cx="45" cy="62" rx="3.5" ry="2.6" fill="#D4A0B0"/>
+  <path d="M41.5 64.5 Q45 68.5 48.5 64.5" stroke="#D4A0B0" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <line x1="12" y1="60"   x2="38" y2="62"   stroke="#8BBCD4" stroke-width="0.9" opacity="0.65"/>
+  <line x1="12" y1="64.5" x2="38" y2="64"   stroke="#8BBCD4" stroke-width="0.9" opacity="0.65"/>
+  <line x1="78" y1="60"   x2="52" y2="62"   stroke="#8BBCD4" stroke-width="0.9" opacity="0.65"/>
+  <line x1="78" y1="64.5" x2="52" y2="64"   stroke="#8BBCD4" stroke-width="0.9" opacity="0.65"/>
+  <ellipse cx="34" cy="109" rx="10" ry="6.5" fill="#5388A4"/>
+  <line x1="28" y1="109" x2="28" y2="113.5" stroke="#6B9EB8" stroke-width="1"/>
+  <line x1="34" y1="110" x2="34" y2="114.5" stroke="#6B9EB8" stroke-width="1"/>
+  <line x1="40" y1="109" x2="40" y2="113.5" stroke="#6B9EB8" stroke-width="1"/>
+  <ellipse cx="56" cy="109" rx="10" ry="6.5" fill="#5388A4"/>
+  <line x1="50" y1="109" x2="50" y2="113.5" stroke="#6B9EB8" stroke-width="1"/>
+  <line x1="56" y1="110" x2="56" y2="114.5" stroke="#6B9EB8" stroke-width="1"/>
+  <line x1="62" y1="109" x2="62" y2="113.5" stroke="#6B9EB8" stroke-width="1"/>
+</svg>`;
+}
+
+function dogSVG(w, h) {
+  return `<svg viewBox="0 0 90 110" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="45" cy="93" rx="31" ry="21" fill="#9BA8B5"/>
+  <ellipse cx="45" cy="97" rx="19" ry="14" fill="#EDE8E2"/>
+  <ellipse cx="45" cy="54" rx="31" ry="27" fill="#9BA8B5"/>
+  <ellipse cx="45" cy="39" rx="23" ry="16" fill="#68788A"/>
+  <ellipse cx="45" cy="65" rx="18" ry="16" fill="#EDE8E2"/>
+  <ellipse cx="45" cy="69" rx="12" ry="9"  fill="#E3DDD6"/>
+  <polygon points="19,37 9,5 38,25"  fill="#68788A"/>
+  <polygon points="22,35 14,10 36,26" fill="#C8B0BC"/>
+  <polygon points="71,37 81,5 52,25"  fill="#68788A"/>
+  <polygon points="68,35 76,10 54,26" fill="#C8B0BC"/>
+  <ellipse cx="33" cy="53" rx="7.5" ry="8"   fill="white"/>
+  <ellipse cx="33" cy="54" rx="5"   ry="5.5"  fill="#5084C0"/>
+  <circle  cx="33" cy="54" r="3.4"            fill="#1A1A1A"/>
+  <circle  cx="35.5" cy="51.5" r="1.5"        fill="white"/>
+  <ellipse cx="57" cy="53" rx="7.5" ry="8"   fill="white"/>
+  <ellipse cx="57" cy="54" rx="5"   ry="5.5"  fill="#5084C0"/>
+  <circle  cx="57" cy="54" r="3.4"            fill="#1A1A1A"/>
+  <circle  cx="59.5" cy="51.5" r="1.5"        fill="white"/>
+  <ellipse cx="45" cy="66" rx="5.5" ry="3.8"  fill="#1E1E1E"/>
+  <ellipse cx="42.5" cy="65" rx="1.6" ry="1"  fill="rgba(255,255,255,.38)"/>
+  <path d="M39.5 70 Q45 75.5 50.5 70" stroke="#B0A8A0" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <ellipse cx="33" cy="110" rx="11" ry="6.5" fill="#8A98A5"/>
+  <line x1="27" y1="110" x2="27" y2="114.5" stroke="#9BA8B5" stroke-width="1"/>
+  <line x1="33" y1="111" x2="33" y2="115.5" stroke="#9BA8B5" stroke-width="1"/>
+  <line x1="39" y1="110" x2="39" y2="114.5" stroke="#9BA8B5" stroke-width="1"/>
+  <ellipse cx="57" cy="110" rx="11" ry="6.5" fill="#8A98A5"/>
+  <line x1="51" y1="110" x2="51" y2="114.5" stroke="#9BA8B5" stroke-width="1"/>
+  <line x1="57" y1="111" x2="57" y2="115.5" stroke="#9BA8B5" stroke-width="1"/>
+  <line x1="63" y1="110" x2="63" y2="114.5" stroke="#9BA8B5" stroke-width="1"/>
+</svg>`;
+}
+
+/* ── INIT ────────────────────────────────────────────────────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('sel-cat').innerHTML = catSVG(90, 100);
+  document.getElementById('sel-dog').innerHTML = dogSVG(90, 100);
+  renderPetFig();
+  updateHunger();
+});
+
+function renderPetFig() {
+  document.getElementById('pet-fig').innerHTML =
+    S.pet === 'cat' ? catSVG(130, 150) : dogSVG(130, 150);
+}
+
+/* ── WELCOME ─────────────────────────────────────────────────────── */
+function selectPet(type) {
+  S.pet = type;
+  document.getElementById('card-cat').classList.toggle('sel', type === 'cat');
+  document.getElementById('card-dog').classList.toggle('sel', type === 'dog');
+  haptic('light');
+}
+
+function startChat() {
+  const v = document.getElementById('name-inp').value.trim();
+  S.name = v || (S.pet === 'cat' ? '小蓝' : '二哈');
+  document.getElementById('disp-name').textContent = S.name;
+  renderPetFig();
+  setEmotion('平静');
+  document.getElementById('s-welcome').classList.remove('active');
+  document.getElementById('s-chat').classList.add('active');
+  const greet = S.pet === 'cat'
+    ? '喵～ 你来啦。今天过得怎么样？'
+    : '嗷！你来了！（摇尾巴）今天咋样？';
+  addPetMsg(greet);
+  haptic('success');
+}
+
+function goBack() {
+  document.getElementById('s-chat').classList.remove('active');
+  document.getElementById('s-welcome').classList.add('active');
+  S.msgs = []; S.pendingEmotions = [];
+  S.emotion = '平静'; S.busy = false;
+  S.suggestShown = false; S.totalExchanges = 0;
+  document.getElementById('chat-msgs').innerHTML = '';
+  document.getElementById('suggest-row').innerHTML = '';
+  haptic('light');
+}
+
+/* ── MESSAGES ────────────────────────────────────────────────────── */
+function addPetMsg(text) {
+  const msgs = document.getElementById('chat-msgs');
+  const bg   = S.pet === 'cat' ? '#D4ECF7' : '#DDE2E8';
+  const av   = S.pet === 'cat' ? '🐱' : '🐶';
+  const el = document.createElement('div');
+  el.className = 'msg pet';
+  el.innerHTML = `<div class="msg-av" style="background:${bg}">${av}</div>
+    <div class="msg-bbl">${esc(text)}</div>`;
+  msgs.appendChild(el);
+  scrollBottom();
+}
+
+function addUserMsg(text) {
+  const msgs = document.getElementById('chat-msgs');
+  const el = document.createElement('div');
+  el.className = 'msg user';
+  el.innerHTML = `<div class="msg-bbl">${esc(text)}</div>`;
+  msgs.appendChild(el);
+  scrollBottom();
+}
+
+function showTyping() {
+  const msgs = document.getElementById('chat-msgs');
+  const bg   = S.pet === 'cat' ? '#D4ECF7' : '#DDE2E8';
+  const av   = S.pet === 'cat' ? '🐱' : '🐶';
+  const el = document.createElement('div');
+  el.id = 'typing-el'; el.className = 'msg pet';
+  el.innerHTML = `<div class="msg-av" style="background:${bg}">${av}</div>
+    <div class="typing-bbl"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+  msgs.appendChild(el);
+  scrollBottom();
+}
+function removeTyping() { const e = document.getElementById('typing-el'); if(e) e.remove(); }
+
+/* ── SEND ────────────────────────────────────────────────────────── */
+async function sendMsg() {
+  if (S.busy) return;
+  const ta   = document.getElementById('msg-ta');
+  const text = ta.value.trim();
+  if (!text) return;
+  ta.value = ''; ta.style.height = 'auto'; ta.blur();
+
+  addUserMsg(text);
+  S.msgs.push({ role: 'user', content: text });
+  if (S.msgs.length > 20) S.msgs = S.msgs.slice(-20);
+
+  S.busy = true;
+  document.getElementById('snd-btn').disabled = true;
+  showTyping();
+
+  try {
+    const sys = S.pet === 'cat' ? SYS_CAT : SYS_DOG;
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [{ role: 'system', content: sys }, ...S.msgs],
+        max_tokens: 160, temperature: 0.85
+      })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data   = await res.json();
+    const raw    = data.choices?.[0]?.message?.content?.trim() || '';
+    const parsed = parseReply(raw);
+
+    S.msgs.push({ role: 'assistant', content: raw });
+    removeTyping();
+    addPetMsg(parsed.reply);
+    setEmotion(parsed.emotion);
+    animatePet(parsed.emotion);
+
+    // ─── 对话产生情绪，记录待酿食物 ───
+    onExchangeComplete(parsed.emotion);
+    haptic('light');
+
+  } catch (err) {
+    removeTyping();
+    addPetMsg('……（网络好像出了点问题，稍后再试试吧）');
+    console.error(err);
+  }
+
+  S.busy = false;
+  document.getElementById('snd-btn').disabled = false;
+}
+
+function parseReply(raw) {
+  try { const d = JSON.parse(raw); if (d && d.reply) return { emotion: d.emotion||'平静', reply: d.reply }; } catch(_){}
+  const m = raw.match(/\{[\s\S]*?\}/);
+  if (m) { try { const d = JSON.parse(m[0]); if (d && d.reply) return { emotion: d.emotion||'平静', reply: d.reply }; } catch(_){} }
+  return { emotion: '平静', reply: raw || '……' };
+}
+
+/* ── 对话完成后的处理 ──────────────────────────────────────────── */
+function onExchangeComplete(emotion) {
+  S.totalExchanges++;
+  S.pendingEmotions.push(emotion);
+
+  // 饥饿值随对话消耗
+  S.hunger = Math.max(0, S.hunger - 4);
+  updateHunger();
+
+  // 每 4 轮对话，宠物建议把聊天酿成食物（且未弹过）
+  if (S.pendingEmotions.length >= 4 && !S.suggestShown) {
+    S.suggestShown = true;
+    setTimeout(showFoodSuggestion, 600);
+  }
+
+  // 很饿时（< 20%）且仓库有食物，宠物提示
+  if (S.hunger <= 20 && S.inventory.length > 0 && S.totalExchanges % 3 === 0) {
+    setTimeout(showHungryHint, 800);
+  }
+}
+
+/* ── 宠物主动建议：把这段聊天酿成食物 ──────────────────────────── */
+function showFoodSuggestion() {
+  const suggRow = document.getElementById('suggest-row');
+  if (suggRow.querySelector('.food-gen-btn')) return; // 已有按钮
+
+  // 宠物说话（在 chat 里）
+  const text = S.pet === 'cat'
+    ? `我们今天聊了好多……要不把这些话都酿成食物，存进仓库？`
+    : `嗷嗷嗷我们聊了好久了！！把这些整理成食物存起来不？（有点饿了嗷）`;
+  addPetMsg(text);
+
+  // suggest-row 出现按钮
+  suggRow.innerHTML = '';
+  const btn = document.createElement('button');
+  btn.className = 'food-gen-btn';
+  btn.textContent = '✨ 酿成食物存起来';
+  btn.onclick = generateFoods;
+  suggRow.appendChild(btn);
+}
+
+/* ── 把待处理情绪→食物→存仓库 ─────────────────────────────────── */
+function generateFoods() {
+  if (S.pendingEmotions.length === 0) return;
+
+  const newFoods = S.pendingEmotions.map(emo => makeFood(emo));
+  newFoods.forEach(f => S.inventory.push(f));
+  S.pendingEmotions = [];
+  S.suggestShown    = false;
+
+  // 清空建议按钮
+  document.getElementById('suggest-row').innerHTML = '';
+  updateInvBadge();
+
+  // 宠物确认
+  const txt = S.pet === 'cat'
+    ? `嗯……存好了 ${newFoods.length} 份。仓库里暖暖的了。`
+    : `嗷！存好了 ${newFoods.length} 份！！（摇尾巴看向仓库）`;
+  addPetMsg(txt);
+
+  showToast(`📦 ${newFoods.length} 份食物已存入仓库`);
+  bounceInvBadge();
+  haptic('success');
+}
+
+function makeFood(emotion) {
+  const pool = FOOD_POOL[emotion] || FOOD_POOL['平静'];
+  const tpl  = pool[Math.floor(Math.random() * pool.length)];
+  return {
+    id:      Date.now() + Math.random(),
+    emoji:   tpl.emoji,
+    name:    tpl.name,
+    taste:   tpl.taste,
+    emotion: emotion,
+    desc:    tpl.desc
+  };
+}
+
+/* ── 饥饿提示 ────────────────────────────────────────────────────── */
+function showHungryHint() {
+  const txt = S.pet === 'cat'
+    ? `（肚子咕咕叫了一声）……仓库里好像有东西？`
+    : `乌嗷嗷……（肚子叫了）仓库里有好东西嗷……`;
+  addPetMsg(txt);
+}
+
+/* ── 饥饿条 UI ───────────────────────────────────────────────────── */
+function updateHunger() {
+  const pct   = S.hunger;
+  const fill  = document.getElementById('hunger-fill');
+  const icon  = document.getElementById('hunger-icon');
+  const lbl   = document.getElementById('hunger-lbl');
+  if (!fill) return;
+
+  fill.style.width      = pct + '%';
+  fill.style.background = pct > 55 ? '#7DC8A4' : pct > 25 ? '#F4C430' : '#C87A7A';
+  icon.textContent      = pct > 55 ? '🐾' : pct > 25 ? '😐' : '😩';
+  lbl.textContent       = Math.round(pct) + '%';
+
+  // 很饿 → 切换 idle 动画
+  const fig = document.getElementById('pet-fig');
+  if (fig && pct <= 10) {
+    fig.className = 'pet-fig st-hungry';
+  }
+}
+
+/* ── 仓库 ────────────────────────────────────────────────────────── */
+function updateInvBadge() {
+  document.getElementById('inv-badge').textContent = S.inventory.length;
+}
+
+function bounceInvBadge() {
+  const b = document.getElementById('inv-badge');
+  b.classList.remove('bounce');
+  void b.offsetWidth;
+  b.classList.add('bounce');
+  setTimeout(() => b.classList.remove('bounce'), 400);
+}
+
+function openInventory() {
+  renderInventory();
+  document.getElementById('inv-overlay').classList.add('active');
+  haptic('light');
+}
+
+function closeInventory() {
+  document.getElementById('inv-overlay').classList.remove('active');
+}
+
+function overlayTap(e) {
+  if (e.target === document.getElementById('inv-overlay')) closeInventory();
+}
+
+function renderInventory() {
+  const grid  = document.getElementById('inv-grid');
+  const empty = document.getElementById('inv-empty');
+  const sub   = document.getElementById('inv-subtitle');
+
+  if (S.inventory.length === 0) {
+    grid.innerHTML     = '';
+    empty.style.display = 'flex';
+    sub.textContent    = '还没有食物';
+    return;
+  }
+
+  empty.style.display = 'none';
+  sub.textContent     = `${S.inventory.length} 份食物，点击投喂`;
+
+  const emoCfg = {
+    '开心':'#F4C430','平静':'#7DC8A4','难过':'#7AACC8','焦虑':'#C8A87A','愤怒':'#C87A7A'
+  };
+
+  grid.innerHTML = S.inventory.map((food) => `
+    <div class="inv-card" onclick="feedFromInventory('${food.id}')">
+      <div class="inv-emoji">${food.emoji}</div>
+      <div class="inv-name">${food.name}</div>
+      <div class="inv-taste">${food.taste}</div>
+      <div class="inv-emo-dot" style="background:${emoCfg[food.emotion]||'#ccc'}"></div>
+    </div>`).join('');
+}
+
+/* ── 从仓库投喂 ──────────────────────────────────────────────────── */
+function feedFromInventory(id) {
+  const idx  = S.inventory.findIndex(f => String(f.id) === String(id));
+  if (idx === -1) return;
+  const food = S.inventory.splice(idx, 1)[0];
+
+  closeInventory();
+  updateInvBadge();
+
+  // 饥饿回复
+  S.hunger = Math.min(100, S.hunger + 30);
+  updateHunger();
+
+  // 宠物反应
+  const rxMap = S.pet === 'cat' ? FEED_RX_CAT : FEED_RX_DOG;
+  const rx    = rxMap[food.taste]
+    || (S.pet === 'cat' ? `嗯……${food.name}，好吃喵。` : `嗷！${food.name}！！吃掉了！`);
+
+  // 进食泡泡
+  const hdr = document.getElementById('pet-header');
+  const old = hdr.querySelector('.feed-bbl');
+  if (old) old.remove();
+  const bbl = document.createElement('div');
+  bbl.className   = 'feed-bbl';
+  bbl.textContent = rx;
+  hdr.appendChild(bbl);
+  setTimeout(() => { if (bbl.parentNode) bbl.remove(); }, 3000);
+
+  // 进食动画
+  const fig = document.getElementById('pet-fig');
+  fig.className = 'pet-fig st-eating';
+  setTimeout(() => { fig.className = 'pet-fig'; animatePet(food.emotion); }, 500);
+
+  addPetMsg(rx);
+  haptic('success');
+}
+
+/* ── EMOTION & PET ANIMATION ─────────────────────────────────────── */
+function setEmotion(emo) {
+  S.emotion = emo;
+  const tag = document.getElementById('disp-emo');
+  tag.textContent = emo;
+  const cfg = EMO_CFG[emo] || EMO_CFG['平静'];
+  tag.style.background = cfg.bg;
+  tag.style.color      = cfg.fg;
+}
+
+function animatePet(emo) {
+  if (S.hunger <= 10) return; // 太饿时保持饿的动画
+  const fig = document.getElementById('pet-fig');
+  const map = { '开心':'st-happy','难过':'st-sad','焦虑':'st-anxious','愤怒':'st-angry' };
+  const cls = map[emo] || '';
+  fig.className = `pet-fig ${cls}`;
+  if (cls && cls !== 'st-sad') setTimeout(() => { fig.className = 'pet-fig'; }, 1600);
+}
+
+function petTap() {
+  haptic('light');
+  const fig = document.getElementById('pet-fig');
+  fig.className = 'pet-fig st-happy';
+  setTimeout(() => { fig.className = 'pet-fig'; }, 1000);
+}
+
+/* ── UTILITIES ───────────────────────────────────────────────────── */
+let _toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function scrollBottom() {
+  const m = document.getElementById('chat-msgs');
+  setTimeout(() => { m.scrollTop = m.scrollHeight; }, 50);
+}
+
+function taResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 96) + 'px';
+}
+
+document.getElementById('msg-ta').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+});
+
+function haptic(style) {
+  try { window.webkit?.messageHandlers?.petBridge?.postMessage({ action:'haptic', style }); } catch(_){}
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\n/g,'<br>');
+}
+</script>
+</body>
+</html>
