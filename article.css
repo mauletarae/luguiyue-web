@@ -1,6 +1,10 @@
 /* ============================================================
    ARTICLE PAGE STYLES
    ============================================================ */
+/* Fix: article pages don't include main.js cursor, restore default cursor */
+body { cursor: auto !important; }
+*  { cursor: auto !important; }
+a, button { cursor: pointer !important; }
 .art-nav{
     position:fixed;top:0;left:0;right:0;z-index:100;
     display:flex;align-items:center;justify-content:space-between;
@@ -29,6 +33,15 @@
     max-width:720px;
     margin:0 auto;
     padding:104px clamp(24px,6vw,40px) 80px;
+}
+.art-cover{
+    width:100%;
+    max-height:380px;
+    object-fit:cover;
+    border-radius:16px;
+    margin-bottom:32px;
+    display:block;
+    box-shadow:0 12px 40px rgba(99,102,241,.12);
 }
 
 .art-meta-row{
