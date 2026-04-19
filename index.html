@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陆桂月 — AI 产品经理</title>
+    <meta name="description" content="陆桂月，设计出身的 AI 产品经理。3年以上 AI 产品实战经验。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Aurora background blobs -->
+    <div class="aurora" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="blob blob-4"></div>
+    </div>
+
+    <!-- Particle canvas -->
+    <canvas id="particles" aria-hidden="true"></canvas>
+
+    <!-- Custom cursor -->
+    <div id="cursor" aria-hidden="true"></div>
+    <div id="cursor-dot" aria-hidden="true"></div>
+
+    <!-- ===================== NAV ===================== -->
+    <nav id="nav">
+        <a href="#hero" class="nav-logo">LGY<span>.</span></a>
+        <ul class="nav-links">
+            <li><a href="#about">关于</a></li>
+            <li><a href="#app">作品</a></li>
+            <li><a href="#articles">文章</a></li>
+            <li><a href="#contact">联系</a></li>
+        </ul>
+        <a href="resume.pdf" download class="nav-cta">
+            下载简历 <span class="nav-cta-icon">↓</span>
+        </a>
+        <button class="burger" id="burger" aria-label="菜单">
+            <span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div id="mobile-nav">
+        <ul>
+            <li><a href="#about">关于</a></li>
+            <li><a href="#app">作品</a></li>
+            <li><a href="#articles">文章</a></li>
+            <li><a href="#contact">联系</a></li>
+            <li><a href="resume.pdf" download class="mobile-dl">下载简历 PDF</a></li>
+        </ul>
+    </div>
+
+    <!-- ===================== HERO ===================== -->
+    <section id="hero">
+        <div class="hero-left">
+            <p class="hero-eyebrow">
+                <span class="dot-live"></span>
+                AI Product Manager · 产品经理
+            </p>
+            <h1 class="hero-name">
+                陆桂月<span class="hero-name-en">Guiyue Lu</span>
+            </h1>
+            <p class="hero-sub">
+                <span id="typewriter"></span><span class="blink">|</span>
+            </p>
+            <div class="hero-actions">
+                <a href="#about" class="btn-primary">了解我</a>
+                <a href="resume.pdf" download class="btn-ghost">简历 PDF <span>↓</span></a>
+            </div>
+        </div>
+
+        <div class="hero-right">
+            <!-- iPhone hero mockup (decorative) -->
+            <div class="iphone iphone-hero">
+                <div class="iphone-frame">
+                    <div class="iphone-island"></div>
+                    <div class="iphone-screen">
+                        <div class="hero-carousel">
+                            <!-- Mini screen 0: 月之案面 -->
+                            <div class="hc-slide active" id="hc-0">
+                                <div class="hc-bg hc-dark">
+                                    <div class="hc-bar"><span>月之案面</span><span>🎬</span></div>
+                                    <div class="hc-storyboard">
+                                        <div class="hc-panel"><svg viewBox="0 0 50 34"><rect width="50" height="34" fill="#1a1060"/><circle cx="40" cy="6" r="4" fill="#8b5cf6" opacity=".7"/><circle cx="16" cy="22" r="4" fill="#c4b5fd" opacity=".6"/><path d="M12 28 L16 22 L20 28" fill="#6366f1" opacity=".5"/></svg><div class="hc-cap">01 · 月夜独行</div></div>
+                                        <div class="hc-panel"><svg viewBox="0 0 50 34"><rect width="50" height="34" fill="#110840"/><circle cx="25" cy="14" r="7" fill="none" stroke="#8b5cf6" stroke-width="1"/><circle cx="22" cy="12" r="1.2" fill="#e2e8ff"/><circle cx="28" cy="12" r="1.2" fill="#e2e8ff"/><path d="M20 18 Q25 21 30 18" stroke="#e2e8ff" stroke-width=".7" fill="none" opacity=".7"/></svg><div class="hc-cap">02 · 情绪特写</div></div>
+                                    </div>
+                                    <div class="hc-tag">AI 分镜生成</div>
+                                </div>
+                            </div>
+                            <!-- Mini screen 1: 情绪岛·伙伴 -->
+                            <div class="hc-slide" id="hc-1">
+                                <div class="hc-bg hc-warm">
+                                    <div class="hc-bar hc-bar-warm"><span>情绪岛·伙伴</span><span>🐱</span></div>
+                                    <div class="hc-pet-area">
+                                        <div class="hc-pet">🐱</div>
+                                        <div class="hc-pet-mood">开心 😊</div>
+                                    </div>
+                                    <div class="hc-chat-bubble">今天怎么样呀～</div>
+                                    <div class="hc-food-row">
+                                        <span class="hc-food">🍰</span>
+                                        <span class="hc-food">🍵</span>
+                                        <span class="hc-food">🍫</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Mini screen 2: 灵感瞬间 -->
+                            <div class="hc-slide" id="hc-2">
+                                <div class="hc-bg hc-light">
+                                    <div class="hc-bar hc-bar-light"><span>灵感瞬间</span><span>💡</span></div>
+                                    <div class="hc-mic-area">
+                                        <div class="hc-mic-btn">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="9" y="2" width="6" height="12" rx="3" fill="#6366f1"/><path d="M5 10a7 7 0 0014 0" stroke="#6366f1" stroke-width="1.5" fill="none" stroke-linecap="round"/><line x1="12" y1="17" x2="12" y2="21" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                        </div>
+                                        <div class="hc-mic-label">点击录制灵感</div>
+                                    </div>
+                                    <div class="hc-inspiration-card">用负空间重新设计导航逻辑</div>
+                                    <div class="hc-inspiration-card" style="opacity:.6">AI 产品最小验证单元是什么？</div>
+                                </div>
+                            </div>
+                            <!-- Mini screen 3: Vesper -->
+                            <div class="hc-slide" id="hc-3">
+                                <div class="hc-bg hc-gold">
+                                    <div class="hc-bar hc-bar-gold"><span>Vesper</span><span>✦</span></div>
+                                    <div class="hc-vp-q">这次，为什么？</div>
+                                    <div class="hc-vp-opts">
+                                        <span class="hc-vp-opt">💒 婚礼</span>
+                                        <span class="hc-vp-opt">🏠 住房</span>
+                                        <span class="hc-vp-opt">✈️ 旅行</span>
+                                        <span class="hc-vp-opt">🪦 葬礼</span>
+                                    </div>
+                                    <div class="hc-vp-hint">死得起 · 理性账单</div>
+                                </div>
+                            </div>
+                            <!-- Mini screen 4: 客服小九 -->
+                            <div class="hc-slide" id="hc-4">
+                                <div class="hc-bg hc-blue">
+                                    <div class="hc-bar hc-bar-blue"><span>客服小九</span><div class="hc-online"><span class="hc-online-dot"></span>在线</div></div>
+                                    <div class="hc-kf-msg hc-bot">你好！我是客服小九 🎧</div>
+                                    <div class="hc-kf-msg hc-user">NovaStar S5 怎么样？</div>
+                                    <div class="hc-kf-msg hc-bot">NovaStar S5 主打日常通勤，80W 快充+超长续航，性价比极高～</div>
+                                    <div class="hc-kf-chips">
+                                        <span class="hc-kf-chip">商品对比</span>
+                                        <span class="hc-kf-chip">退货政策</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Hero carousel dots -->
+                        <div class="hc-dots">
+                            <button class="hc-dot active" data-hc="0"></button>
+                            <button class="hc-dot" data-hc="1"></button>
+                            <button class="hc-dot" data-hc="2"></button>
+                            <button class="hc-dot" data-hc="3"></button>
+                            <button class="hc-dot" data-hc="4"></button>
+                        </div>
+                    </div>
+                    <div class="iphone-pill"></div>
+                </div>
+                <div class="iphone-shadow"></div>
+            </div>
+        </div>
+
+        <div class="hero-scroll">
+            <span>向下滚动</span>
+            <div class="scroll-track"><div class="scroll-thumb"></div></div>
+        </div>
+    </section>
+
+    <!-- ===================== ABOUT ===================== -->
+    <section id="about" class="section">
+        <div class="section-tag">
+            <span class="tag-num">01</span>
+            <span class="tag-label">ABOUT ME</span>
+        </div>
+
+        <div class="about-grid">
+            <div class="about-headline reveal">
+                <h2>设计出身的<br><em>AI 产品经理</em></h2>
+                <p class="about-en">Designer-turned AI PM.<br>Intuition meets logic.</p>
+            </div>
+
+            <div class="about-body reveal" style="--delay:.12s">
+                <p>能用审美直觉拆解用户体验，也能用系统思维构建产品架构。3 年以上 AI 产品实战，跨越策略、设计与交付全链路——不只提出方向，更擅长把它落地。</p>
+
+                <div class="about-stats">
+                    <div class="stat-block">
+                        <span class="s-num">3<i>+</i></span>
+                        <span class="s-label">年 AI 产品经验</span>
+                    </div>
+                    <div class="stat-block">
+                        <span class="s-num">UX</span>
+                        <span class="s-label">设计师出身</span>
+                    </div>
+                    <div class="stat-block">
+                        <span class="s-num">0→1</span>
+                        <span class="s-label">全链路交付</span>
+                    </div>
+                </div>
+
+                <div class="about-actions">
+                    <a href="resume.pdf" download class="btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 2v8M4 7l4 4 4-4M2 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        下载简历 PDF
+                    </a>
+                    <a href="#contact" class="btn-ghost">联系我</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expertise cards -->
+        <div class="expertise reveal" style="--delay:.2s">
+            <div class="exp-card">
+                <span class="exp-icon">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <circle cx="14" cy="11" r="7" stroke="url(#g1)" stroke-width="1.8"/>
+                        <path d="M10.5 18.5 Q14 22 17.5 18.5" stroke="url(#g1)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+                        <path d="M12 21.5 L12 24 M16 21.5 L16 24" stroke="url(#g1)" stroke-width="1.5" stroke-linecap="round"/>
+                        <circle cx="14" cy="10" r="2" fill="url(#g1)" opacity=".8"/>
+                        <defs><linearGradient id="g1" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+                    </svg>
+                </span>
+                <h3>产品策略</h3>
+                <p>从 0 到 1 制定 AI 产品方向，识别核心问题，推动从洞察到交付的全链路落地。</p>
+            </div>
+            <div class="exp-card">
+                <span class="exp-icon">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <rect x="3" y="16" width="4" height="9" rx="1.5" fill="url(#g2)" opacity=".6"/>
+                        <rect x="9" y="11" width="4" height="14" rx="1.5" fill="url(#g2)" opacity=".75"/>
+                        <rect x="15" y="14" width="4" height="11" rx="1.5" fill="url(#g2)" opacity=".6"/>
+                        <rect x="21" y="7" width="4" height="18" rx="1.5" fill="url(#g2)"/>
+                        <path d="M3 14 Q9 8 15 11 Q21 14 25 6" stroke="url(#g2)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                        <defs><linearGradient id="g2" x1="3" y1="7" x2="25" y2="25" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs>
+                    </svg>
+                </span>
+                <h3>数据驱动</h3>
+                <p>用数据建立评估体系，以量化指标支撑产品决策，持续优化用户体验与业务目标。</p>
+            </div>
+            <div class="exp-card">
+                <span class="exp-icon">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <circle cx="14" cy="8" r="3.5" stroke="url(#g3)" stroke-width="1.5"/>
+                        <circle cx="5" cy="20" r="3" stroke="url(#g3)" stroke-width="1.5"/>
+                        <circle cx="23" cy="20" r="3" stroke="url(#g3)" stroke-width="1.5"/>
+                        <path d="M14 11.5 L5 17 M14 11.5 L23 17" stroke="url(#g3)" stroke-width="1.5" stroke-linecap="round"/>
+                        <path d="M8 20 L20 20" stroke="url(#g3)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 2"/>
+                        <defs><linearGradient id="g3" x1="5" y1="8" x2="23" y2="23" gradientUnits="userSpaceOnUse"><stop stop-color="#8b5cf6"/><stop offset="1" stop-color="#6366f1"/></linearGradient></defs>
+                    </svg>
+                </span>
+                <h3>跨团队协作</h3>
+                <p>协调设计、研发、业务多方团队推进复杂项目，擅长在不确定性中建立共识。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== APP DEMO ===================== -->
+    <section id="app" class="section">
+        <div class="section-tag">
+            <span class="tag-num">02</span>
+            <span class="tag-label">APP DEMO</span>
+        </div>
+
+        <div class="app-demo-grid">
+
+            <!-- Left: app selector -->
+            <div class="app-features">
+                <h2 class="reveal">亲手<br>体验我的<em>作品</em></h2>
+                <p class="app-sub reveal" style="--delay:.1s">点击项目，直接操作交互原型。无需注册。</p>
+
+                <div class="app-selector">
+                    <!-- App 0: 月之案面 -->
+                    <div class="app-item reveal active-ai" style="--delay:.12s" data-screen="0">
+                        <div class="ai-icon-wrap"><span class="ai-emoji">🎬</span></div>
+                        <div class="ai-body">
+                            <div class="ai-meta">
+                                <h4>月之案面</h4>
+                                <span class="ai-tag">短视频 · AI创作</span>
+                            </div>
+                            <p>面向内容团队的 AI 分镜工具。输入脚本即可生成可编辑分镜图卡，将内容生产从人力驱动升级为标准化 AI 输出。</p>
+                        </div>
+                    </div>
+                    <!-- App 1: 情绪岛·伙伴 -->
+                    <div class="app-item reveal" style="--delay:.16s" data-screen="1">
+                        <div class="ai-icon-wrap"><span class="ai-emoji">🐱</span></div>
+                        <div class="ai-body">
+                            <div class="ai-meta">
+                                <h4>情绪岛·伙伴</h4>
+                                <span class="ai-tag">情感陪伴 · AI宠物</span>
+                            </div>
+                            <p>选择你的虚拟宠物，通过日常对话喂养它。AI 识别你的情绪状态，用专属食物与互动陪你度过每一天。</p>
+                        </div>
+                    </div>
+                    <!-- App 2: 灵感瞬间 -->
+                    <div class="app-item reveal" style="--delay:.20s" data-screen="2">
+                        <div class="ai-icon-wrap"><span class="ai-emoji">💡</span></div>
+                        <div class="ai-body">
+                            <div class="ai-meta">
+                                <h4>灵感瞬间</h4>
+                                <span class="ai-tag">效率工具 · 创意管理</span>
+                            </div>
+                            <p>专为创意人设计的灵感捕捉工具。语音或文字快速记录，AI 自动整理标签，让每个一闪而过的想法都有迹可循。</p>
+                        </div>
+                    </div>
+                    <!-- App 3: Vesper -->
+                    <div class="app-item reveal" style="--delay:.24s" data-screen="3">
+                        <div class="ai-icon-wrap"><span class="ai-emoji" style="font-style:normal">✦</span></div>
+                        <div class="ai-body">
+                            <div class="ai-meta">
+                                <h4>Vesper · 死得起</h4>
+                                <span class="ai-tag">人生规划 · 消费理性</span>
+                            </div>
+                            <p>用数据丈量人生重要时刻的真实成本。一份冷静又温柔的理财清单，帮你在消费主义以外找到属于自己的价格锚点。</p>
+                        </div>
+                    </div>
+                    <!-- App 4: 客服小九 -->
+                    <div class="app-item reveal" style="--delay:.28s" data-screen="4">
+                        <div class="ai-icon-wrap"><span class="ai-emoji">🎧</span></div>
+                        <div class="ai-body">
+                            <div class="ai-meta">
+                                <h4>客服小九</h4>
+                                <span class="ai-tag">企业效率 · AI 电商客服</span>
+                            </div>
+                            <p>基于 DeepSeek-V3 的电商客服助手。支持商品咨询、订单查询、售后处理，并能识别图片商品。智能分级，将人力解决率提升至 65%。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Interactive iPhone mockup -->
+            <div class="app-phone-wrap reveal" style="--delay:.1s">
+                <div class="iphone iphone-demo">
+                    <div class="iphone-frame">
+                        <div class="iphone-island"></div>
+                        <div class="iphone-screen">
+
+                            <!-- ===== Screen 0: 月之案面 ===== -->
+                            <div class="app-screen active" id="screen-0">
+                                <div class="yz-wrap">
+                                    <div class="as-header yz-header">
+                                        <span>月之案面</span>
+                                        <span style="font-size:16px">🎬</span>
+                                    </div>
+                                    <div class="yz-input-area">
+                                        <span class="yz-hint" id="yz-ph">月光下独行的少女...</span>
+                                    </div>
+                                    <button class="yz-gen-btn" id="yz-gen">✦ AI 生成分镜</button>
+                                    <div class="yz-panels" id="yz-panels">
+                                        <div class="yz-panel" data-idx="0">
+                                            <div class="yz-thumb">
+                                                <svg viewBox="0 0 56 38"><rect width="56" height="38" fill="#1a1060"/><circle cx="44" cy="6" r="4" fill="#8b5cf6" opacity=".7"/><circle cx="16" cy="22" r="4" fill="#c4b5fd" opacity=".6"/><path d="M12 28 L16 22 L20 28" fill="#6366f1" opacity=".5"/><path d="M0 30 Q14 25 28 28 Q42 31 56 27" stroke="#6366f1" stroke-width=".5" fill="none" opacity=".4"/></svg>
+                                            </div>
+                                            <div class="yz-cap">01 · 月夜独行</div>
+                                        </div>
+                                        <div class="yz-panel" data-idx="1">
+                                            <div class="yz-thumb">
+                                                <svg viewBox="0 0 56 38"><rect width="56" height="38" fill="#110840"/><circle cx="28" cy="15" r="7" fill="none" stroke="#8b5cf6" stroke-width="1"/><circle cx="25" cy="13" r="1.2" fill="#e2e8ff"/><circle cx="31" cy="13" r="1.2" fill="#e2e8ff"/><path d="M23 19 Q28 22 33 19" stroke="#e2e8ff" stroke-width=".7" fill="none" opacity=".7"/></svg>
+                                            </div>
+                                            <div class="yz-cap">02 · 情绪特写</div>
+                                        </div>
+                                        <div class="yz-panel yz-wide" data-idx="2">
+                                            <div class="yz-thumb">
+                                                <svg viewBox="0 0 112 38"><rect width="112" height="38" fill="#0a0830"/><rect x="0" y="26" width="112" height="12" fill="#1a1060"/><rect x="8" y="16" width="7" height="22" fill="#6366f1" opacity=".45"/><rect x="18" y="10" width="9" height="28" fill="#6366f1" opacity=".35"/><rect x="30" y="18" width="6" height="20" fill="#8b5cf6" opacity=".4"/><rect x="40" y="13" width="10" height="25" fill="#6366f1" opacity=".3"/><rect x="54" y="20" width="7" height="18" fill="#8b5cf6" opacity=".35"/><circle cx="88" cy="8" r="4" fill="#8b5cf6" opacity=".5"/></svg>
+                                            </div>
+                                            <div class="yz-cap">03 · 城市远景</div>
+                                        </div>
+                                    </div>
+                                    <div class="yz-status" id="yz-status"></div>
+                                </div>
+                            </div>
+
+                            <!-- ===== Screen 1: 情绪岛·伙伴 ===== -->
+                            <div class="app-screen" id="screen-1">
+                                <div class="ei-wrap">
+                                    <div class="as-header ei-header">
+                                        <span>情绪岛·伙伴</span>
+                                        <span style="font-size:16px">🐱</span>
+                                    </div>
+                                    <div class="ei-pet-zone">
+                                        <div class="ei-pet" id="ei-pet">🐱</div>
+                                        <div class="ei-pet-label" id="ei-pet-label">平静 😌</div>
+                                    </div>
+                                    <div class="ei-chat-area">
+                                        <div class="ei-bubble" id="ei-bubble">今天怎么样呀～</div>
+                                    </div>
+                                    <div class="ei-moods">
+                                        <button class="ei-mood" data-mood="happy" data-food="🍰" data-reply="哇，你今天好开心！来颗草莓蛋糕庆祝一下～">😊 开心</button>
+                                        <button class="ei-mood" data-mood="calm" data-food="🍵" data-reply="嗯，平静就很好。来杯抹茶，慢慢喝～">😌 平静</button>
+                                        <button class="ei-mood" data-mood="sad" data-food="🍫" data-reply="没关系的，我在这里。热可可送给你，暖暖的。">😢 难过</button>
+                                    </div>
+                                    <div class="ei-food-display" id="ei-food"></div>
+                                </div>
+                            </div>
+
+                            <!-- ===== Screen 2: 灵感瞬间 ===== -->
+                            <div class="app-screen" id="screen-2">
+                                <div class="lg-wrap">
+                                    <div class="as-header">
+                                        <span>灵感瞬间</span>
+                                        <span style="font-size:16px">💡</span>
+                                    </div>
+                                    <div class="lg-mic-area">
+                                        <button class="lg-mic" id="lg-mic">
+                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="9" y="2" width="6" height="12" rx="3" fill="currentColor"/><path d="M5 10a7 7 0 0014 0" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="9" y1="21" x2="15" y2="21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                                        </button>
+                                        <div class="lg-mic-hint" id="lg-hint">点击录制灵感</div>
+                                    </div>
+                                    <div class="lg-cards" id="lg-cards">
+                                        <div class="lg-card">
+                                            <span class="lg-card-time">1小时前</span>
+                                            <span class="lg-card-text">用负空间重新设计导航逻辑</span>
+                                            <span class="lg-card-tag">设计</span>
+                                        </div>
+                                        <div class="lg-card">
+                                            <span class="lg-card-time">昨天</span>
+                                            <span class="lg-card-text">AI 产品最小验证单元是什么？</span>
+                                            <span class="lg-card-tag">产品</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ===== Screen 3: Vesper 死得起 ===== -->
+                            <div class="app-screen" id="screen-3">
+                                <div class="vp-wrap">
+                                    <div class="vp-header">
+                                        <span class="vp-logo">Vesper</span>
+                                        <span class="vp-sub">死得起</span>
+                                    </div>
+                                    <!-- Step 0 -->
+                                    <div class="vp-step active" id="vp-s0">
+                                        <div class="vp-q">这次，为什么？</div>
+                                        <div class="vp-opts">
+                                            <button class="vp-opt" data-next="1" data-type="婚礼">💒 婚礼</button>
+                                            <button class="vp-opt" data-next="1" data-type="住房">🏠 住房</button>
+                                            <button class="vp-opt" data-next="1" data-type="旅行">✈️ 旅行</button>
+                                            <button class="vp-opt" data-next="1" data-type="葬礼">🪦 葬礼</button>
+                                        </div>
+                                    </div>
+                                    <!-- Step 1 -->
+                                    <div class="vp-step" id="vp-s1">
+                                        <div class="vp-q">在哪个城市？</div>
+                                        <div class="vp-opts">
+                                            <button class="vp-opt" data-next="r" data-city="一线">北上广深</button>
+                                            <button class="vp-opt" data-next="r" data-city="新一线">新一线城市</button>
+                                            <button class="vp-opt" data-next="r" data-city="其他">二三线城市</button>
+                                        </div>
+                                    </div>
+                                    <!-- Result -->
+                                    <div class="vp-step" id="vp-result">
+                                        <div class="vp-result-label">你的真实账单</div>
+                                        <div class="vp-total-num" id="vp-total">38.6<span>万元</span></div>
+                                        <div class="vp-breakdown" id="vp-bd">
+                                            <div class="vp-line"><span>场地 &amp; 装饰</span><span>8万</span></div>
+                                            <div class="vp-line"><span>餐饮 &amp; 酒水</span><span>12万</span></div>
+                                            <div class="vp-line"><span>婚纱摄影</span><span>3万</span></div>
+                                            <div class="vp-line"><span>服装 &amp; 妆造</span><span>2万</span></div>
+                                        </div>
+                                        <button class="vp-reset" id="vp-reset">重新计算 →</button>
+                                    </div>
+                                    <div class="vp-progress-dots">
+                                        <div class="vp-pdot active" id="vpd-0"></div>
+                                        <div class="vp-pdot" id="vpd-1"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ===== Screen 4: 客服小九 ===== -->
+                            <div class="app-screen" id="screen-4">
+                                <div class="kf-wrap">
+                                    <div class="kf-header">
+                                        <div class="kf-avatar-icon">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 3a9 9 0 00-9 9v1.5a1.5 1.5 0 001.5 1.5H6a1.5 1.5 0 001.5-1.5v-2A1.5 1.5 0 006 10h-.93A7 7 0 0119 10h-.07a1.5 1.5 0 00-1.43 1.5v2A1.5 1.5 0 0019 15h1.5A1.5 1.5 0 0022 13.5V12a9 9 0 00-9-9z"/></svg>
+                                        </div>
+                                        <div class="kf-info">
+                                            <div class="kf-name">客服小九</div>
+                                            <div class="kf-status"><span class="kf-dot"></span>在线服务中</div>
+                                        </div>
+                                        <div class="kf-model-badge">DeepSeek-V3</div>
+                                    </div>
+                                    <div class="kf-escalate" id="kf-escalate">
+                                        <span>👤 需要人工？工作时间 09:00–22:00</span>
+                                        <button class="kf-esc-close" onclick="document.getElementById('kf-escalate').style.display='none'">✕</button>
+                                    </div>
+                                    <div class="kf-chat" id="kf-chat">
+                                        <div class="kf-msg kf-bot">你好！我是客服小九 🎧<br>可以询问商品信息、活动优惠、<br>订单状态或售后政策。</div>
+                                        <div class="kf-suggest-label">你可以问我：</div>
+                                        <div class="kf-suggest-list">
+                                            <button class="kf-suggest" data-q="VisionPro X1 和 NovaStar S5 哪款更值得买？" data-a="VisionPro X1 定位专业创作，搭载 M3 芯片+120Hz 高刷屏，适合重度用户；NovaStar S5 主打日常通勤，价格亲民 800 元。建议按预算和使用场景选择～">商品对比推荐</button>
+                                            <button class="kf-suggest" data-q="夏季焕新节活动有哪些优惠？" data-a="夏季焕新节全场 9 折优惠，NovaStar S5 直降 300 元，另有以旧换新补贴最高 800 元。活动截止本月底，手慢无！">查看活动优惠</button>
+                                            <button class="kf-suggest" data-q="如何申请七天无理由退货？" data-a="购买之日起 7 天内均可申请无理由退货，需保持商品未激活状态。进入「我的订单」→「申请退款」，系统 1-3 工作日内完成处理。">七天无理由退货</button>
+                                            <button class="kf-suggest" data-q="如何查询我的订单物流？" data-a="您可在「我的」→「我的订单」中查看实时物流信息。如订单超时未送达，系统将自动赔付 5 元补偿，无需申请。">查询订单物流</button>
+                                        </div>
+                                    </div>
+                                    <div class="kf-chips" id="kf-chips">
+                                        <button class="kf-chip" data-q="80W 快充多久充满？" data-a="NovaStar S5 配备 80W 超级快充，从 0% 到 100% 约需 45 分钟，充至 50% 仅需 15 分钟，行业领先水平 ⚡">快充咨询</button>
+                                        <button class="kf-chip" data-q="申请投诉" data-a="已记录您的投诉，客服专员将在 2 小时内跟进处理。如需人工服务，可点击上方横幅联系专属客服。">投诉</button>
+                                        <button class="kf-chip" data-q="申请换货" data-a="换货申请已提交！请拍照上传商品问题，审核通过后安排上门取件，全程免费。">换货</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div><!-- /iphone-screen -->
+                        <div class="iphone-pill"></div>
+                    </div>
+                    <div class="iphone-shadow"></div>
+                </div>
+
+                <!-- Screen dots (5) -->
+                <div class="screen-dots">
+                    <button class="sdot active" data-target="0"></button>
+                    <button class="sdot" data-target="1"></button>
+                    <button class="sdot" data-target="2"></button>
+                    <button class="sdot" data-target="3"></button>
+                    <button class="sdot" data-target="4"></button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ===================== ARTICLES ===================== -->
+    <section id="articles" class="section">
+        <div class="section-tag">
+            <span class="tag-num">03</span>
+            <span class="tag-label">ARTICLES</span>
+        </div>
+
+        <div class="articles-header reveal">
+            <h2>最近在写</h2>
+            <a href="#" class="see-all">查看全部 →</a>
+        </div>
+
+        <div class="articles-grid">
+            <article class="art-card reveal" style="--delay:.05s">
+                <div class="art-meta">
+                    <span class="art-date">2025 · 03</span>
+                    <span class="art-tag">AI 产品</span>
+                </div>
+                <h3>Agent 架构下的产品设计思路</h3>
+                <p>从 prompt chain 到 multi-agent 协作，产品经理如何定义 AI 系统的行为边界？</p>
+                <a href="#" class="art-link">阅读全文 <span>→</span></a>
+            </article>
+
+            <article class="art-card reveal" style="--delay:.1s">
+                <div class="art-meta">
+                    <span class="art-date">2025 · 01</span>
+                    <span class="art-tag">用户体验</span>
+                </div>
+                <h3>设计师转 PM，我失去了什么又得到了什么</h3>
+                <p>两种视角的碰撞：当审美直觉遇到数据决策，如何找到平衡点？</p>
+                <a href="#" class="art-link">阅读全文 <span>→</span></a>
+            </article>
+
+            <article class="art-card reveal" style="--delay:.15s">
+                <div class="art-meta">
+                    <span class="art-date">2024 · 11</span>
+                    <span class="art-tag">方法论</span>
+                </div>
+                <h3>用数据说话：AI 产品的评估体系搭建</h3>
+                <p>没有 benchmark 的 AI 功能上线，等于在黑暗中飞行。这是我建立评估框架的方法。</p>
+                <a href="#" class="art-link">阅读全文 <span>→</span></a>
+            </article>
+        </div>
+    </section>
+
+    <!-- ===================== CONTACT ===================== -->
+    <section id="contact" class="section">
+        <div class="section-tag">
+            <span class="tag-num">04</span>
+            <span class="tag-label">CONTACT</span>
+        </div>
+
+        <div class="contact-wrap">
+            <div class="contact-left reveal">
+                <h2>有想法？<br><em>聊聊吧。</em></h2>
+                <p class="contact-en">Have an idea? Let's talk.</p>
+            </div>
+            <div class="contact-right reveal" style="--delay:.12s">
+                <a href="mailto:hi@luguiyue.com" class="contact-email">
+                    hi@luguiyue.com
+                    <span class="email-arrow">→</span>
+                </a>
+                <p class="contact-hint">一般在 24 小时内回复</p>
+            </div>
+        </div>
+
+        <footer>
+            <span>© 2025 陆桂月 / Guiyue Lu · AI Product Manager</span>
+            <span class="footer-right">Designed & built with ♥</span>
+        </footer>
+    </section>
+
+    <script src="main.js"></script>
+</body>
+</html>
