@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>如果AI能够完成所有操作，PM的价值到底在哪里？— 陆桂月</title>
+    <meta name="description" content="AI已能生成PRD、做竞品分析，PM的核心壁垒究竟在哪里？不在决策，在你对真实场景的评估判断。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="article.css">
+</head>
+<body>
+
+<nav class="art-nav">
+    <a href="index.html" class="art-nav-back">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        返回主页
+    </a>
+    <a href="index.html" class="art-nav-logo">LGY<span style="color:var(--indigo)">.</span></a>
+</nav>
+
+<main class="art-wrap">
+    <div class="art-meta-row">
+        <span class="art-meta-date">2026 · 02</span>
+        <span class="art-meta-tag">AI 产品</span>
+        <span class="art-meta-tag">职业思考</span>
+    </div>
+
+    <h1 class="art-title">如果AI能够完成所有操作，PM的价值到底在哪里？</h1>
+
+    <p class="art-intro">AI已能生成PRD、做竞品分析，PM的核心壁垒究竟在哪里？不在"决策"，在你对真实场景不可言说的评估判断。</p>
+
+    <div class="art-body">
+        <p>上周一个快转正的新人约我吃饭，一脸丧气。</p>
+        <p>他说他花了三天写的30页竞品分析，被一个比他晚来的同事一上午复刻了，维度更全，逻辑更严。他还试着把语音需求扔给AI，直接生成了PRD，连异常分支都没落下。</p>
+        <p>他问我："月哥，如果AI能完成所有执行，公司为什么还要雇我，而不是花几百块买个API？"</p>
+        <p>我第一反应不是安慰他，而是觉得——这个问题问错了方向。</p>
+
+        <h2>大多数"PM的自我安慰"都是错的</h2>
+        <p>网上关于AI时代PM价值的文章，基本都在说同一套：AI做执行，PM做决策；AI懂How，PM懂Why；AI没有情感，PM有同理心……</p>
+        <p>这些话没错，但都是废话。因为它们描述的是一种理想状态，而不是你每天坐在工位上真实面对的处境。</p>
+        <p>我做AI产品这几年，亲手搭过分镜生成系统，也搭过跨境电商的AI客服。我见过太多"PM在AI时代依然不可替代"的漂亮论断，但这些论断救不了那个被AI两小时复刻了三天工作成果的新人。</p>
+        <p>真正值得想清楚的问题只有一个：<strong>你对产品的判断，有没有AI拿不走的部分？</strong></p>
+
+        <h2>AI给出的永远是"统计学正确"的答案</h2>
+        <p>我在做月映分镜系统的时候，有过一段很典型的经历。</p>
+        <p>我们让AI按照标准分镜规范自动生成脚本，输出结果相当工整——景别合理、节奏符合平台调性、转场逻辑也没问题。但剪辑团队拿到之后，实际使用率很低。</p>
+        <p>我去问他们，得到的反馈很零碎："感觉不对"、"用不顺手"、"这个场景不是这么剪的"。</p>
+        <p>这些话AI是处理不了的，因为它们根本没法被结构化成prompt。</p>
+        <p>后来我们做了很多轮调整，核心不是优化模型，而是我坐下来陪着剪辑反复看素材、听他们描述"卡住"的那一刻发生了什么。那些停顿、那些"说不上来的别扭感"，最后才变成了真正有用的评测标准。</p>
+        <p>这件事让我理解了一件事：<em>AI生成的是"大多数情况下正确"的答案。但用户遇到的往往不是大多数情况。</em></p>
+
+        <h2>PM的护城河在"评估"，不在"决策"</h2>
+        <p>"PM负责决策"这个说法，我觉得有点虚。大多数时候，你其实没有资格拍板，你能做的是影响决策。</p>
+        <p>真正AI拿不走的，是评估能力——判断一个输出好不好，判断一个方案在真实场景里会不会翻车。</p>
+        <p>AI客服系统上线前，模型给出的自动回复在测试集上准确率很高。但我们做内测时发现，有一类用户——在收到"您好，感谢您的反馈"这种标准话术之后，会立刻升级投诉，情绪反而更激动。</p>
+        <p>测试数据里没有这个信号，因为这类用户不多，样本量不够。但我在听真实客服电话的时候感受到了。</p>
+        <p>这个判断最终影响了我们分层响应策略的设计——哪类问题不能走自动回复，必须转人工，怎么判断这个边界。这个决定AI做不了，因为它根本感知不到那种"咬牙切齿"的情绪是怎么来的。</p>
+
+        <h2>一个没人说清楚的概念：需求的可言说性边界</h2>
+        <p>用户真正的痛点，往往说不清楚。</p>
+        <p>"我觉得操作有点麻烦"——这句话AI能处理。</p>
+        <p>但用户在某个步骤停顿了0.5秒然后放弃，这个信号AI可能捕捉不到；就算捕捉到了，也不知道背后是功能逻辑问题、文案问题，还是纯粹是那天用户心情不好。</p>
+        <p>我把这个叫做"需求的可言说性边界"——<strong>只有能被清晰语言化的需求，AI才有能力处理好。边界以外的那些模糊信号，是PM最核心的原材料。</strong></p>
+        <p>所以"多去一线"这件事，不是情怀，是真实的信息差。你在办公室对着AI生成的分析报告优化迭代，和你去陪用户用一次产品、感受他卡在哪、为什么放弃，获得的是完全不同质量的输入。</p>
+
+        <h2>给还在焦虑的新人</h2>
+        <p>我没有办法告诉你"别担心，PM不会被替代"，因为那是在撒谎。</p>
+        <p>确实有一类PM会被替代：那些核心价值只是"把需求翻译成文档"的人。这件事AI已经做得比他们好了。</p>
+        <p>但还有一类PM，他们的价值在于能判断"AI生成的这个方案，在真实世界里行不行"。这个判断力不是靠写更好的prompt练出来的，是靠大量真实场景的摩擦磨出来的。</p>
+        <p>你花三天写的那份竞品分析被复刻了，那份分析本身确实没有壁垒。</p>
+        <p><em>但你花三天泡在用户里观察出来的判断，是复刻不走的。</em></p>
+        <p>AI替代了执行，恰好把你从那些干燥重复的文档里解放出来。你接下来怎么用这些时间，才是问题真正所在。</p>
+    </div>
+
+    <hr class="art-divider">
+
+    <div class="art-footer">
+        <div class="art-author">
+            <div class="art-author-avatar">月</div>
+            <div>
+                <div class="art-author-name">陆桂月</div>
+                <div class="art-author-role">AI 产品经理 · 设计师出身</div>
+            </div>
+        </div>
+        <a href="index.html#articles" class="art-back-btn">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            返回文章列表
+        </a>
+    </div>
+</main>
+
+</body>
+</html>
