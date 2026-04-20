@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>月之案面</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:#EBF1FA;overflow:hidden;color:#1a2340}
+
+.screen{position:fixed;inset:0;display:none;flex-direction:column}
+.screen.active{display:flex}
+
+/* ── STATUS BAR ─── */
+.status-bar{padding:14px 20px 0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sb-time{font-size:15px;font-weight:700}
+.sb-icons{display:flex;gap:5px;align-items:center;font-size:12px}
+
+/* ── TABS ─── */
+.tabs{display:flex;align-items:center;margin:14px 16px 0;background:#D8E4F5;border-radius:12px;padding:3px;flex-shrink:0}
+.tab{flex:1;text-align:center;padding:8px;border-radius:9px;font-size:14px;font-weight:600;color:#6B8AB0;cursor:pointer;transition:all .2s}
+.tab.active{background:#fff;color:#1a2340;box-shadow:0 1px 6px rgba(0,0,0,.12)}
+.tab-badge{background:#3B82F6;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;margin-left:6px}
+
+/* ── SCREEN 0: 生成 ─── */
+#s0 .body{flex:1;overflow-y:auto;padding:14px 16px 20px;display:flex;flex-direction:column;gap:14px}
+
+.field-label{font-size:13px;color:#5A6E8A;font-weight:500;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.field-label .req{color:#EF4444;margin-left:2px}
+.field-label .count{color:#9DAFC5;font-size:12px}
+
+.textarea-box{background:#fff;border-radius:14px;border:1px solid #D8E4F0;padding:14px;box-shadow:0 1px 6px rgba(59,130,246,.06)}
+.textarea-box textarea{width:100%;border:none;outline:none;font-size:14px;color:#1a2340;line-height:1.7;resize:none;height:88px;font-family:inherit;background:transparent}
+.textarea-box textarea::placeholder{color:#B0C0D4}
+
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{padding:8px 18px;border-radius:20px;font-size:13px;font-weight:500;border:1px solid #C5D5E8;background:#fff;color:#5A6E8A;cursor:pointer;transition:all .15s}
+.pill.active{background:#3B82F6;border-color:#3B82F6;color:#fff}
+.pill:active{opacity:.8}
+
+.dropdown{background:#fff;border-radius:14px;border:1px solid #D8E4F0;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 1px 6px rgba(59,130,246,.06)}
+.dropdown span{font-size:14px;color:#1a2340}
+.dropdown .arrow{color:#9DAFC5;font-size:12px}
+
+.upload-box{border:1.5px dashed #B0C8E8;border-radius:14px;height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;background:rgba(59,130,246,.03)}
+.upload-box .plus{font-size:24px;color:#90AFCC}
+.upload-box .hint{font-size:11px;color:#9DAFC5}
+
+.bottom-bar{padding:12px 16px 24px;background:#EBF1FA;border-top:1px solid #D8E4F0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.bal-info{font-size:12px;color:#7890A8}
+.bal-info span{color:#1a2340;font-weight:600}
+.gen-btn{background:#3B82F6;color:#fff;border:none;border-radius:12px;padding:12px 28px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s}
+.gen-btn:active{opacity:.8}
+.gen-btn:disabled{opacity:.45}
+
+/* ── SCREEN 1: 历史 ─── */
+#s1 .body{flex:1;overflow-y:auto;padding:14px 16px 20px;display:flex;flex-direction:column;gap:12px}
+.hist-header{display:flex;align-items:center;justify-content:space-between}
+.hist-title{font-size:18px;font-weight:800}
+.hist-sub{font-size:12px;color:#7890A8}
+.new-btn{background:#3B82F6;color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer}
+
+.proj-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(59,130,246,.08)}
+.proj-img{width:100%;height:130px;object-fit:cover;display:block;background:linear-gradient(135deg,#D4E8FF,#EBF1FA)}
+.proj-img-placeholder{width:100%;height:130px;background:linear-gradient(135deg,#D4E8FF 0%,#BDD5F5 100%);display:flex;align-items:center;justify-content:center;color:#7890A8;font-size:13px}
+.proj-info{padding:12px 14px}
+.proj-name{font-size:15px;font-weight:700;margin-bottom:4px}
+.proj-desc{font-size:12px;color:#7890A8;line-height:1.5;margin-bottom:8px}
+.proj-meta{display:flex;gap:10px;align-items:center}
+.proj-tag{font-size:11px;color:#5A6E8A;background:#EBF1FA;padding:2px 8px;border-radius:6px}
+.proj-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px}
+.badge-done{background:rgba(16,185,129,.12);color:#059669}
+
+/* ── SCREEN 2: RESULT ─── */
+#s2{background:#fff}
+#s2 .topbar{display:flex;align-items:center;gap:12px;padding:48px 16px 12px;flex-shrink:0;border-bottom:1px solid #F0F4FA}
+.back-btn{font-size:13px;color:#3B82F6;cursor:pointer;display:flex;align-items:center;gap:4px}
+.topbar-title{font-size:16px;font-weight:700;flex:1}
+.topbar-sub{font-size:12px;color:#7890A8}
+#s2 .body{flex:1;overflow-y:auto;padding:0}
+.result-frame{border-bottom:1px solid #F0F4FA;padding:14px 16px;display:flex;gap:12px}
+.frame-num{width:24px;height:24px;border-radius:50%;background:#3B82F6;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.frame-body{flex:1}
+.frame-badge{font-size:10px;color:#5A6E8A;background:#EBF1FA;padding:2px 7px;border-radius:5px;margin-bottom:6px;display:inline-block}
+.frame-img{width:100%;height:90px;border-radius:10px;object-fit:cover;background:linear-gradient(135deg,#D4E8FF,#BDD5F5);margin-bottom:6px;display:block}
+.frame-text{font-size:13px;color:#2A3850;line-height:1.6;margin-bottom:8px}
+.frame-actions{display:flex;gap:8px}
+.frame-act{font-size:11px;color:#5A6E8A;background:#F0F4FA;border:none;padding:5px 10px;border-radius:8px;cursor:pointer}
+
+.dropdown-sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:20px 16px 34px;z-index:10;transform:translateY(100%);transition:transform .3s ease}
+.dropdown-sheet.open{transform:none}
+.sheet-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.sheet-title{font-size:16px;font-weight:700}
+.sheet-close{width:30px;height:30px;border-radius:50%;background:#F0F4FA;border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sheet-options{display:flex;flex-wrap:wrap;gap:10px}
+.sheet-opt{padding:9px 18px;border-radius:20px;font-size:14px;border:1px solid #D8E4F0;background:#fff;cursor:pointer;transition:all .15s}
+.sheet-opt.sel{background:#3B82F6;border-color:#3B82F6;color:#fff}
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:9;display:none}
+.sheet-overlay.open{display:block}
+</style>
+</head>
+<body>
+
+<!-- 生成屏 -->
+<div class="screen active" id="s0">
+  <div class="status-bar"><span class="sb-time">17:59</span><span class="sb-icons">▌▌▌ ✦ 🔋</span></div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0)">生成</div>
+    <div class="tab" onclick="switchTab(1)">历史 <span class="tab-badge">5</span></div>
+  </div>
+  <div class="body">
+    <div>
+      <div class="field-label">创意描述<span class="req">*</span><span class="count" id="cnt">0/300</span></div>
+      <div class="textarea-box">
+        <textarea id="desc" placeholder="描述你的视频创意..." maxlength="300" oninput="document.getElementById('cnt').textContent=this.value.length+'/300'"></textarea>
+      </div>
+    </div>
+    <div>
+      <div class="field-label">分镜数量</div>
+      <div class="pills" id="count-pills">
+        <div class="pill" onclick="selPill(this,'count-pills')">4 镜</div>
+        <div class="pill active" onclick="selPill(this,'count-pills')">6 镜</div>
+        <div class="pill" onclick="selPill(this,'count-pills')">8 镜</div>
+        <div class="pill" onclick="selPill(this,'count-pills')">自定义</div>
+      </div>
+    </div>
+    <div>
+      <div class="field-label">视频类型</div>
+      <div class="dropdown" onclick="openSheet('type-sheet')">
+        <span id="type-val">小说推文</span><span class="arrow">▾</span>
+      </div>
+    </div>
+    <div>
+      <div class="field-label">画面风格</div>
+      <div class="dropdown" onclick="openSheet('style-sheet')">
+        <span id="style-val">写实</span><span class="arrow">▾</span>
+      </div>
+    </div>
+    <div>
+      <div class="field-label">画面比例</div>
+      <div class="pills" id="ratio-pills">
+        <div class="pill active" onclick="selPill(this,'ratio-pills')">⬜ 9:16</div>
+        <div class="pill" onclick="selPill(this,'ratio-pills')">▭ 16:9</div>
+        <div class="pill" onclick="selPill(this,'ratio-pills')">◻ 1:1</div>
+      </div>
+    </div>
+    <div>
+      <div class="field-label">参考图片</div>
+      <div class="upload-box"><div class="plus">+</div><div class="hint">点击上传</div></div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <div class="bal-info">余额：<span>0 积分</span>&nbsp;&nbsp;本次消耗：<span>20 积分</span></div>
+    <button class="gen-btn" id="gen-btn" onclick="doGenerate()">生成分镜</button>
+  </div>
+</div>
+
+<!-- 历史屏 -->
+<div class="screen" id="s1">
+  <div class="status-bar"><span class="sb-time">17:59</span><span class="sb-icons">▌▌▌ ✦ 🔋</span></div>
+  <div class="tabs">
+    <div class="tab" onclick="switchTab(0)">生成</div>
+    <div class="tab active" onclick="switchTab(1)">历史 <span class="tab-badge">5</span></div>
+  </div>
+  <div class="body">
+    <div class="hist-header">
+      <div><div class="hist-title">历史项目</div><div class="hist-sub">共 5 个项目</div></div>
+      <button class="new-btn" onclick="switchTab(0)">+ 新建分镜</button>
+    </div>
+    <div class="proj-card" onclick="openResult()">
+      <div class="proj-img-placeholder" style="background:linear-gradient(135deg,#F5E8D4,#E8D0B8);color:#8A6A50;font-size:11px;flex-direction:column;gap:4px"><div style="font-size:28px">👘</div><div>东方美学，现代传承</div></div>
+      <div class="proj-info">
+        <div class="proj-name">东方美学，现代传承</div>
+        <div class="proj-desc">一位独立设计师品牌主理人将一件手工刺绣品…</div>
+        <div class="proj-meta">
+          <span class="proj-badge badge-done">已完成</span>
+          <span class="proj-tag">6 镜</span><span class="proj-tag">写实</span><span class="proj-tag">9:16</span>
+          <span style="flex:1"></span><span style="font-size:11px;color:#9DAFC5">5天前</span>
+        </div>
+      </div>
+    </div>
+    <div class="proj-card">
+      <div class="proj-img-placeholder" style="background:linear-gradient(135deg,#D4EAF5,#BDD5F5);color:#5A7A9A;flex-direction:column;gap:4px"><div style="font-size:28px">👗</div><div>波西米亚风连衣裙</div></div>
+      <div class="proj-info">
+        <div class="proj-name">波西米亚风连衣裙，秋季新品</div>
+        <div class="proj-desc">波西米亚风连衣裙，秋季发布新品，帮我生成一个对应的分镜</div>
+        <div class="proj-meta">
+          <span class="proj-badge badge-done">已完成</span>
+          <span class="proj-tag">4 镜</span><span class="proj-tag">9:16</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 结果屏 -->
+<div class="screen" id="s2">
+  <div class="topbar">
+    <div class="back-btn" onclick="switchTab(1)">‹ 返回</div>
+    <div class="topbar-title">东方美学，现代传承</div>
+    <div class="topbar-sub">6镜 · 进度 1%</div>
+  </div>
+  <div class="body" id="result-body">
+  </div>
+</div>
+
+<!-- 下拉选择器 -->
+<div class="sheet-overlay" id="overlay" onclick="closeSheet()"></div>
+<div class="dropdown-sheet" id="type-sheet">
+  <div class="sheet-header"><span class="sheet-title">视频类型</span><button class="sheet-close" onclick="closeSheet()">✕</button></div>
+  <div class="sheet-options">
+    <div class="sheet-opt sel" onclick="pickOpt(this,'type-val','type-sheet')">小说推文</div>
+    <div class="sheet-opt" onclick="pickOpt(this,'type-val','type-sheet')">带货视频</div>
+    <div class="sheet-opt" onclick="pickOpt(this,'type-val','type-sheet')">短剧</div>
+    <div class="sheet-opt" onclick="pickOpt(this,'type-val','type-sheet')">漫剧</div>
+    <div class="sheet-opt" onclick="pickOpt(this,'type-val','type-sheet')">广告</div>
+    <div class="sheet-opt" onclick="pickOpt(this,'type-val','type-sheet')">纪录片</div>
+    <div class="sheet-opt" onclick="pickOpt(this,'type-val','type-sheet')">产品介绍</div>
+  </div>
+</div>
+<div class="dropdown-sheet" id="style-sheet">
+  <div class="sheet-header"><span class="sheet-title">画面风格</span><button class="sheet-close" onclick="closeSheet()">✕</button></div>
+  <div class="sheet-options">
+    <div class="sheet-opt sel" onclick="pickOpt(this,'style-val','style-sheet')">写实</div>
+    <div class="sheet-opt" onclick="pickOpt(this,'style-val','style-sheet')">动漫</div>
+    <div class="sheet-opt" onclick="pickOpt(this,'style-val','style-sheet')">水墨</div>
+    <div class="sheet-opt" onclick="pickOpt(this,'style-val','style-sheet')">油画</div>
+    <div class="sheet-opt" onclick="pickOpt(this,'style-val','style-sheet')">赛博朋克</div>
+  </div>
+</div>
+
+<script>
+function switchTab(n){
+  document.getElementById('s0').classList.toggle('active',n===0);
+  document.getElementById('s1').classList.toggle('active',n===1);
+  document.getElementById('s2').classList.remove('active');
+}
+function openResult(){
+  buildResult();
+  document.getElementById('s1').classList.remove('active');
+  document.getElementById('s2').classList.add('active');
+}
+function selPill(el,groupId){
+  document.querySelectorAll('#'+groupId+' .pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+}
+function openSheet(id){ document.getElementById(id).classList.add('open'); document.getElementById('overlay').classList.add('open'); }
+function closeSheet(){ document.querySelectorAll('.dropdown-sheet').forEach(s=>s.classList.remove('open')); document.getElementById('overlay').classList.remove('open'); }
+function pickOpt(el,targetId,sheetId){
+  document.querySelectorAll('#'+sheetId+' .sheet-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById(targetId).textContent=el.textContent;
+  closeSheet();
+}
+
+const resultData=[
+  {badge:'特写 · 正面平视', text:'光线流动\n苏州园林白墙黑瓦，模特身穿宫金色刺绣旗袍，引出新品亮相。'},
+  {badge:'远景 · 从下往上拍', text:'缓步走来\n模特缓步走过园林回廊，金色刺绣在逆光中跃然若现，引出新品细节。'},
+  {badge:'近景 · 从上往下拍', text:'细节展示\n模特轻触触摸旗袍上的金色刺绣，展示工艺细节，表达品牌温度。'},
+  {badge:'中景', text:'现代裁剪\n模特优雅转身，展示现代视觉设计，形成从细节画面过渡到全身的视觉切换。'},
+  {badge:'特写 · 正面平视', text:'高光时刻\n模特自信地站在庭院中，展示品牌力量，引发最后记忆点。'},
+  {badge:'中景 · 远标特写', text:'品牌定格\n模特结合在品牌logo前，展示旗袍全貌，传递品牌精神。'},
+];
+function buildResult(){
+  const body=document.getElementById('result-body');
+  body.innerHTML=resultData.map((f,i)=>`
+    <div class="result-frame">
+      <div class="frame-num">${i}</div>
+      <div class="frame-body">
+        <span class="frame-badge">${f.badge}</span>
+        <div class="frame-img" style="background:linear-gradient(${135+i*20}deg,#D4E8FF,#C5D5F5)"></div>
+        <div class="frame-text">${f.text.replace(/\n/g,'<br>')}</div>
+        <div class="frame-actions">
+          <button class="frame-act">✏ 详细编辑</button>
+          <button class="frame-act">⧉ 复制提词</button>
+          <button class="frame-act">↺ 重新生成</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+let genTimer;
+function doGenerate(){
+  const btn=document.getElementById('gen-btn');
+  btn.disabled=true;btn.textContent='生成中…';
+  let i=0;genTimer=setInterval(()=>{btn.textContent='生成中'+'…'.slice(0,i%3+1);i++;},400);
+  setTimeout(()=>{ clearInterval(genTimer); btn.disabled=false; btn.textContent='生成分镜'; buildResult(); switchTab(1); openResult(); },1800);
+}
+</script>
+</body>
+</html>

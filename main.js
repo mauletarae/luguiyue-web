@@ -208,7 +208,13 @@ document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
     dots.forEach(dot=>{
         dot.addEventListener('click',()=>{ goTo(+dot.dataset.target); resetTimer(); });
     });
-    // app-item clicks are handled by the detail modal — no phone switch on click
+
+    // hovering app-item switches phone preview
+    appItems.forEach((item, idx)=>{
+        item.addEventListener('mouseenter', ()=>{ goTo(idx); clearInterval(timer); });
+    });
+    // resume auto-rotate when mouse leaves the selector
+    document.querySelector('.app-selector')?.addEventListener('mouseleave', ()=>{ resetTimer(); });
 
     appItems[0]?.classList.add('active-ai');
     resetTimer();
@@ -564,13 +570,7 @@ document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
                 {icon:'📋', title:'历史项目管理', desc:'所有分镜项目归档，随时复用或二次编辑'},
                 {icon:'🚀', title:'批量生成', desc:'多镜头并行生成，大幅压缩制作周期'},
             ],
-            type:'gallery',
-            screens:[
-                {src:'imgs/screens/yz-1.png', cap:'创意输入'},
-                {src:'imgs/screens/yz-2.png', cap:'视频类型'},
-                {src:'imgs/screens/yz-3.png', cap:'历史项目'},
-                {src:'imgs/screens/yz-4.jpg', cap:'生成完成'},
-            ]
+            type:'iframe', src:'app-yuezhi.html'
         },
         {
             emoji:'🐱', name:'情绪岛·伙伴', tag:'情感陪伴 · AI宠物',
@@ -592,13 +592,7 @@ document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
                 {icon:'🗂️', title:'卡片式浏览', desc:'瀑布流排列，一眼扫过所有灵感碎片'},
                 {icon:'🔍', title:'全文搜索', desc:'关键词秒查，让旧灵感随时被重新发现'},
             ],
-            type:'gallery',
-            screens:[
-                {src:'imgs/screens/lg-1.png', cap:'主页'},
-                {src:'imgs/screens/lg-2.png', cap:'卡片浏览'},
-                {src:'imgs/screens/lg-3.png', cap:'记录灵感'},
-                {src:'imgs/screens/lg-4.png', cap:'历史记录'},
-            ]
+            type:'iframe', src:'app-lingganzhuijian.html'
         },
         {
             emoji:'✦', name:'Vesper · 死得起', tag:'人生规划 · 消费理性',
@@ -620,12 +614,7 @@ document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
                 {icon:'🔄', title:'售后流程自动化', desc:'退换货规则自动判断，减少人工介入'},
                 {icon:'📷', title:'图片识别', desc:'上传商品图片即可识别并推荐相似款'},
             ],
-            type:'gallery',
-            screens:[
-                {src:'imgs/screens/kf-1.png', cap:'首页'},
-                {src:'imgs/screens/kf-2.png', cap:'对话中'},
-                {src:'imgs/screens/kf-3.png', cap:'关于页'},
-            ]
+            type:'iframe', src:'app-kefu.html'
         },
     ];
 
@@ -674,7 +663,7 @@ document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
                     <div class="adm-iframe-bar-dot"></div>
                     <span style="margin-left:4px">可直接互动体验</span>
                 </div>
-                <iframe class="adm-iframe-full" src="${d.src}" title="${d.name}" loading="lazy"></iframe>`;
+                <iframe class="adm-iframe-full" src="${d.src}" title="${d.name}"></iframe>`;
         }
 
         overlay.classList.add('adm-open');
@@ -691,6 +680,7 @@ document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
     overlay.addEventListener('click', e=>{ if(e.target === overlay) closeModal(); });
     document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
 
+    // clicking the full app-item opens the detail modal with HTML interactive demo
     document.querySelectorAll('.app-item').forEach((item, idx)=>{
         item.style.cursor = 'pointer';
         item.addEventListener('click', ()=> openModal(idx));

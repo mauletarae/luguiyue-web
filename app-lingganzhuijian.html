@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>灵感瞬间</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;font-family:-apple-system,'PingFang SC','Helvetica Neue',sans-serif;background:#F0EEFF;overflow:hidden}
+
+.screen{position:fixed;inset:0;display:none;flex-direction:column}
+.screen.active{display:flex}
+
+/* status bar */
+.sb{padding:14px 20px 0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.sb-time{font-size:15px;font-weight:700;color:#1a1840}
+.sb-right{display:flex;gap:5px;align-items:center;font-size:12px;color:#1a1840}
+
+/* top nav */
+.topnav{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 6px;flex-shrink:0}
+.nav-icon{width:36px;height:36px;border-radius:50%;background:rgba(99,102,241,.10);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px}
+.nav-title{font-size:17px;font-weight:700;color:#1a1840}
+
+/* card carousel */
+.carousel-wrap{flex:1;display:flex;align-items:center;overflow:hidden;position:relative;padding:10px 0}
+.carousel-track{display:flex;align-items:center;gap:16px;padding:0 60px;transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform}
+.card{
+  flex-shrink:0;width:220px;height:310px;border-radius:28px;
+  display:flex;flex-direction:column;justify-content:flex-end;padding:20px;
+  cursor:pointer;user-select:none;transition:transform .25s,opacity .25s
+}
+.card.center{transform:scale(1);opacity:1;box-shadow:0 16px 48px rgba(99,102,241,.25)}
+.card.side{transform:scale(.88);opacity:.6}
+.card-text{font-size:16px;font-weight:700;color:#fff;line-height:1.4;margin-bottom:4px}
+.card-dur{font-size:12px;color:rgba(255,255,255,.7)}
+.card-dot{width:32px;height:4px;background:rgba(255,255,255,.5);border-radius:2px;margin-bottom:14px;align-self:center}
+
+/* dots */
+.dots-row{display:flex;justify-content:center;gap:6px;padding:8px 0 6px;flex-shrink:0}
+.dot{width:6px;height:6px;border-radius:3px;background:rgba(99,102,241,.25);transition:all .25s}
+.dot.active{width:18px;background:#8b5cf6}
+
+/* bottom controls */
+.controls{padding:10px 0 32px;display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0}
+.ctrl-row{display:flex;align-items:flex-end;gap:28px}
+.mic-btn{
+  width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#6366f1);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:0 8px 28px rgba(99,102,241,.4);transition:transform .15s;border:none
+}
+.mic-btn:active{transform:scale(.93)}
+.mic-btn.rec{background:linear-gradient(135deg,#ef4444,#dc2626);animation:rpulse 1s ease-in-out infinite}
+@keyframes rpulse{0%,100%{box-shadow:0 8px 28px rgba(239,68,68,.4)}50%{box-shadow:0 8px 36px rgba(239,68,68,.65),0 0 0 10px rgba(239,68,68,.1)}}
+.mic-icon{width:26px;height:26px}
+.txt-ctrl{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;opacity:.7}
+.txt-ctrl-icon{width:36px;height:36px;border-radius:10px;background:rgba(99,102,241,.12);display:flex;align-items:center;justify-content:center;font-size:18px}
+.ctrl-label{font-size:11px;color:#6B60A8;font-weight:500}
+.rec-hint{font-size:13px;color:#8b6fc8;font-weight:500;min-height:20px}
+
+/* Screen 1: write / AI refine */
+#s1{background:#F7F6FF}
+.write-nav{display:flex;align-items:center;justify-content:space-between;padding:48px 20px 14px;flex-shrink:0}
+.write-cancel{font-size:15px;color:#6366f1;cursor:pointer}
+.write-title{font-size:16px;font-weight:700;color:#1a1840}
+.write-body{flex:1;padding:0 20px;display:flex;flex-direction:column;gap:14px;overflow:hidden}
+.write-area{
+  flex:1;background:#fff;border-radius:18px;padding:18px;
+  font-size:16px;color:#1a1840;line-height:1.8;border:none;outline:none;
+  resize:none;font-family:inherit;box-shadow:0 2px 16px rgba(99,102,241,.08)
+}
+.write-area::placeholder{color:#C0BAE8}
+.write-actions{padding:0 20px 32px;display:flex;flex-direction:column;gap:10px;flex-shrink:0}
+.ai-btn{
+  width:100%;padding:14px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,#8b5cf6,#6366f1);
+  color:#fff;font-size:15px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s
+}
+.ai-btn:active{opacity:.85}
+.save-btn{
+  width:100%;padding:14px;border-radius:14px;border:none;
+  background:#EEEDF9;color:#6B60A8;font-size:15px;font-weight:600;cursor:pointer
+}
+.save-btn:active{opacity:.8}
+</style>
+</head>
+<body>
+
+<!-- Screen 0: main -->
+<div class="screen active" id="s0">
+  <div class="sb"><span class="sb-time">17:58</span><span class="sb-right">▌▌▌ ✦ 🔋</span></div>
+  <div class="topnav">
+    <div class="nav-icon">🕐</div>
+    <div class="nav-title">灵感</div>
+    <div class="nav-icon">⚙️</div>
+  </div>
+
+  <div class="carousel-wrap" id="carousel-wrap">
+    <div class="carousel-track" id="track">
+      <!-- cards built by JS -->
+    </div>
+  </div>
+
+  <div class="dots-row" id="dots-row"></div>
+
+  <div class="controls">
+    <div class="ctrl-row">
+      <div class="txt-ctrl" style="visibility:hidden"><div class="txt-ctrl-icon">⌨</div><div class="ctrl-label">文字</div></div>
+      <button class="mic-btn" id="mic-btn" onclick="toggleMic()">
+        <svg class="mic-icon" viewBox="0 0 26 26" fill="none">
+          <rect x="9" y="2" width="8" height="14" rx="4" fill="#fff"/>
+          <path d="M4 12a9 9 0 0018 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <line x1="13" y1="21" x2="13" y2="25" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <line x1="8" y1="25" x2="18" y2="25" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="txt-ctrl" onclick="openWrite()">
+        <div class="txt-ctrl-icon">⌨</div>
+        <div class="ctrl-label">文字</div>
+      </div>
+    </div>
+    <div class="rec-hint" id="rec-hint">点击录制灵感</div>
+  </div>
+</div>
+
+<!-- Screen 1: write -->
+<div class="screen" id="s1">
+  <div class="write-nav">
+    <span class="write-cancel" onclick="show('s0')">取消</span>
+    <span class="write-title">记录灵感</span>
+    <span style="width:40px"></span>
+  </div>
+  <div class="write-body">
+    <textarea class="write-area" id="write-area" placeholder="输入你的灵感…"></textarea>
+  </div>
+  <div class="write-actions">
+    <button class="ai-btn" onclick="aiRefine()">✦ AI提炼</button>
+    <button class="save-btn" onclick="saveAndBack()">⬆ 直接保存</button>
+  </div>
+</div>
+
+<script>
+const cards=[
+  {text:'APP 映射到个人网站展示',dur:'8 hr, 28 min',grad:'linear-gradient(145deg,#9b8dd6,#7c6fc9)'},
+  {text:'自我分析查漏补缺',dur:'8 hr, 29 min',grad:'linear-gradient(145deg,#a78bd4,#8b6fc9)'},
+  {text:'用声音作为情绪记忆的锚点',dur:'刚刚',grad:'linear-gradient(145deg,#b09bde,#8b79cc)'},
+  {text:'首页留白减少 30% 试试？',dur:'2 hr, 10 min',grad:'linear-gradient(145deg,#8b78c8,#7060bc)'},
+];
+let cur=0;
+
+function build(){
+  const track=document.getElementById('track');
+  const dotsRow=document.getElementById('dots-row');
+  track.innerHTML='';dotsRow.innerHTML='';
+  cards.forEach((c,i)=>{
+    const div=document.createElement('div');
+    div.className='card '+(i===cur?'center':'side');
+    div.style.background=c.grad;
+    div.innerHTML=`<div class="card-dot"></div><div class="card-text">${c.text}</div><div class="card-dur">${c.dur}</div>`;
+    div.onclick=()=>{if(i!==cur){cur=i;update();}};
+    track.appendChild(div);
+    const d=document.createElement('div');
+    d.className='dot'+(i===cur?' active':'');
+    dotsRow.appendChild(d);
+  });
+  update(false);
+}
+
+function update(animate=true){
+  const wrap=document.getElementById('carousel-wrap');
+  const ww=wrap.offsetWidth;
+  const track=document.getElementById('track');
+  const cardW=220+16;
+  const offset=ww/2-cardW*cur-220/2-60;
+  track.style.transition=animate?'transform .35s cubic-bezier(.4,0,.2,1)':'none';
+  track.style.transform=`translateX(${offset}px)`;
+  track.querySelectorAll('.card').forEach((c,i)=>{ c.className='card '+(i===cur?'center':'side'); });
+  document.querySelectorAll('.dot').forEach((d,i)=>{ d.className='dot'+(i===cur?' active':''); });
+}
+
+let touchSX=0;
+document.getElementById('track').addEventListener('touchstart',e=>{touchSX=e.touches[0].clientX;},{passive:true});
+document.getElementById('track').addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-touchSX;
+  if(Math.abs(dx)>40){ cur=dx<0?Math.min(cur+1,cards.length-1):Math.max(cur-1,0); update(); }
+},{passive:true});
+
+function show(id){['s0','s1'].forEach(s=>document.getElementById(s).classList.remove('active'));document.getElementById(id).classList.add('active');}
+function openWrite(){ document.getElementById('write-area').value=''; show('s1'); setTimeout(()=>document.getElementById('write-area').focus(),300); }
+
+let recTimer,recording=false;
+function toggleMic(){
+  const btn=document.getElementById('mic-btn'),hint=document.getElementById('rec-hint');
+  if(recording){clearTimeout(recTimer);recording=false;btn.classList.remove('rec');hint.textContent='点击录制灵感';return;}
+  recording=true;btn.classList.add('rec');hint.textContent='录音中… 点击停止';
+  recTimer=setTimeout(()=>{
+    recording=false;btn.classList.remove('rec');hint.textContent='已保存！';
+    cards.unshift({text:'如果 AI 能预测我的灵感周期',dur:'刚刚',grad:'linear-gradient(145deg,#c49bde,#a07ccc)'});
+    cur=0;build();
+    setTimeout(()=>{ hint.textContent='点击录制灵感'; },1800);
+  },2200);
+}
+
+function aiRefine(){
+  const ta=document.getElementById('write-area');
+  if(!ta.value.trim()){ta.placeholder='请先输入灵感…';return;}
+  ta.value='✦ '+ta.value.trim()+'\n\n— AI 已优化表达，保留核心洞察。';
+}
+
+function saveAndBack(){
+  const text=document.getElementById('write-area').value.trim();
+  if(text){ cards.unshift({text,dur:'刚刚',grad:'linear-gradient(145deg,#9b8dd6,#7c6fc9)'}); cur=0; build(); }
+  show('s0');
+}
+
+build();
+</script>
+</body>
+</html>
